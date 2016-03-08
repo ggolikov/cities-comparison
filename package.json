@@ -1,0 +1,36 @@
+{
+  "name": "cities-comparison",
+  "version": "1.0.0",
+  "description": "npm",
+  "main": "main.js",
+  "dependencies": {
+    "browserify": "^13.0.0",
+    "csv2json": "^1.1.0",
+    "js-search": "^1.2.2",
+    "js-worker-search": "^1.0.1",
+    "leaflet": "^0.7.7",
+    "leaflet-ajax": "^2.0.0",
+    "leaflet-geojson-selector": "^0.2.2",
+    "leaflet-providers": "^1.1.7",
+    "leaflet-search": "^1.8.4"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build-js": "browserify main.js -o bundle.js",
+    "watch-js": "watchify main.js -o bundle.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ggolikov/cities-comparison.git"
+  },
+  "keywords": [
+    "cities",
+    "comparison"
+  ],
+  "author": "ggolikov",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ggolikov/cities-comparison/issues"
+  },
+  "homepage": "https://github.com/ggolikov/cities-comparison#readme"
+}
