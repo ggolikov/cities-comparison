@@ -33,7 +33,9 @@ var countries = [
 ];
 
 $('#first-city').autocomplete({
-    serviceUrl: '/src/districts.js',
+    serviceUrl: 'https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/districts.js',
+    type: "POST",
+    crossDomain: true,
     onSelect: function (suggestion) {
         console.log(('You selected: ' + suggestion.value + ', ' + suggestion.data));
     }
