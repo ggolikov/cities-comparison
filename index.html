@@ -9,25 +9,26 @@
 		<title>Cities comparison</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<link rel="stylesheet" href="main.css"/>
+		<link rel="stylesheet" href="css/main.css"/>
+		<link rel="stylesheet" href="css/leaflet-search.css"/>
 		<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
 		<script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
 		<script src="http://code.jquery.com/jquery-1.12.1.min.js"></script>
-		<script src="Fuse.js"></script>
-		<script src="districts.js"></script>
+		<script src="src/leaflet-search.js"></script>
+		<script src="src/districts.js"></script>
 	</head>
 	<body>
 		<div class="top">
 			<table>
 				<tr>
 					<td>
-						<h1>Cities comparison</h1>
+						<h1><a href=index.html>Cities comparison</a></h1>
 					</td>
-					<td>
-						<input id="first-city" type="search" placeholder="Select first city"/>
+					<td id="first-city">
+						<!-- <input id="first-city" type="search" placeholder="Select first city"/> -->
 					</td>
-					<td>
-						<input id="second-city" type="search" placeholder="Select second city"/>
+					<td id="second-city">
+						<!-- <input id="second-city" type="search" placeholder="Select second city"/> -->
 					</td>
 				</tr>
 			</table>
