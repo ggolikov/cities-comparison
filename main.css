@@ -22,10 +22,10 @@ table {
   min-height: 100px;
   background-color: #0E0E0E;
 }
-.first-city {
+#first-city {
   float: right;;
 }
-.second-city {
+#second-city {
   float: left;
 }
 .map {

@@ -2,7 +2,8 @@ require('leaflet-ajax');
 
 /** search-box
 */
-
+var first = document.getElementById('first-city');
+first.style.background = 'yellow';
 /**
 * Set CartoDB Dark Matter Basemap to both map-divs
 */
@@ -18,7 +19,4 @@ var featuresLayer = new L.GeoJSON(districts, {
       marker.bindPopup(feature.properties.name);
     }
   });
-
 map.addLayer(featuresLayer);
-var searchControl = new L.Control.Search({layer: featuresLayer, propertyName: 'name', circleLocation:false});
-map.addControl( searchControl );
