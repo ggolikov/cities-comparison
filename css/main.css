@@ -23,15 +23,19 @@ table {
   background-color: #0E0E0E;
 }
 #first-city {
-  /*float: right;*/
+  float: right;
 }
 #second-city {
-  /*float: left;*/
+  float: left;
 }
 .map {
   width:auto;
   height: 85%;
   min-height: 300px;
+}
+.autocomplete-suggestions {
+  color: inherit;
+  background-color: white;
 }
 a:link {
   text-decoration: none;

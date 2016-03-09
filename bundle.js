@@ -20,7 +20,6 @@ var borders = new L.GeoJSON(districts, {
     onEachFeature: function(feature, marker) {
       marker.bindPopup(feature.properties.name);
     },
-
   });
 map.addLayer(borders);
 
@@ -28,43 +27,18 @@ map.addLayer(borders);
 ** search-box
 */
 
-var firstSearchControl = new L.Control.Search({
-  container: 'first-city',
-  layer: borders,
-  propertyName: 'name',
-  circleLocation: false,
-  collapsed: false
-});
+var countries = [
+    { value: 'Andorra', data: 'AD' },
+    // ...
+    { value: 'Zimbabwe', data: 'ZZ' }
+];
 
-firstSearchControl.on('search_locationfound', function(e) {
-    e.layer.filter = function(feature){
-      if(document.getElementsByClassName('search-input')[1].value) {
-        return feature.properties.street == document.getElementsByClassName('search-input')[1].value;
-      }
-    };
-		map.fitBounds(e.layer);
-    if(e.layer._popup) {
-      e.layer.openPopup();
-    };
-})
-
-var secondSearchControl = new L.Control.Search({
-  container: 'second-city',
-  layer: borders,
-  propertyName: 'name',
-  circleLocation: false,
-  collapsed: false
-});
-
-secondSearchControl.on('search_locationfound', function(e) {
-		map.fitBounds(e.layer);
-    if(e.layer._popup) {
-      e.layer.openPopup();
+$('#first-city').autocomplete({
+    serviceUrl: '/src/districts.js',
+    onSelect: function (suggestion) {
+        console.log(('You selected: ' + suggestion.value + ', ' + suggestion.data));
     }
-})
-
-map.addControl(firstSearchControl);
-map.addControl(secondSearchControl);
+});
 
 },{"leaflet-ajax":4}],2:[function(require,module,exports){
 (function (global){
