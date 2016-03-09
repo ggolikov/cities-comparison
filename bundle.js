@@ -16,7 +16,7 @@ map.addLayer(mapQuest);
 ** Set GeoJSON
 */
 
-var borders = new L.GeoJSON.ajax('https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/districts.js', {
+var borders = new L.geoJson.ajax("https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/districts.js", {
     onEachFeature: function(feature, marker) {
       marker.bindPopup(feature.properties.name);
     },
