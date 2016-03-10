@@ -15,51 +15,70 @@ map.addLayer(mapQuest);
 /**
 ** Set GeoJSON
 */
+var txt = 'Красногвардейский район';
 
 var borders = new L.geoJson.ajax("https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/districts.js", {
     onEachFeature: function(feature, marker) {
       marker.bindPopup(feature.properties.name);
     },
+    filter: function(feature){
+      return feature.properties.name == txt;
+    }
   });
 map.addLayer(borders);
+
+var first = document.getElementById('first-city');
 
 /**
 ** search-box
 */
 
-// $('#first-city').autocomplete({
-  // serviceUrl: 'https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/countries.js',
 
+var smth = [
+  "aaa",
+  "bbb",
+  "baa",
+  "abbc",
+  "C",
+]
 
 $(function() {
-    var availableTags = [
-      "ActionScript",
-      "AppleScript",
-      "Asp",
-      "BASIC",
-      "C",
-      "C++",
-      "Clojure",
-      "COBOL",
-      "ColdFusion",
-      "Erlang",
-      "Fortran",
-      "Groovy",
-      "Haskell",
-      "Java",
-      "JavaScript",
-      "Lisp",
-      "Perl",
-      "PHP",
-      "Python",
-      "Ruby",
-      "Scala",
-      "Scheme"
-    ];
-$('#first-city').autocomplete({
-      source: availableTags
+  $('#first-city').autocomplete({
+        source: function(request, response) {
+            $.ajax({
+              url: "/search",
+                dataType: "json",
+                type : 'Get',
+                data: {
+                  q: request.term
+                },
+                success: function(data) {
+                    response(data);
+                },
+                error: function(data) {
+                    $('#first-city').removeClass('ui-autocomplete-loading');
+                }
+            });
+        },
+        minLength: 1,
+        open: function() {},
+        close: function() {},
+        focus: function(event,ui) {},
+        select: function(event, ui) {}
     });
-  });
+});
+
+var xhr = new XMLHttpRequest();
+xhr.open('GET', '/search/example.json', false);
+xhr.send();
+if (xhr.status != 200) {
+  // обработать ошибку
+  alert( xhr.status + ': ' + xhr.statusText ); // пример вывода: 404: Not Found
+} else {
+  // вывести результат
+  console.log(( xhr.responseText )); // responseText -- текст ответа.
+}
+console.log(xhr.response);
 
 },{"leaflet-ajax":4}],2:[function(require,module,exports){
 (function (global){
