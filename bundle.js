@@ -34,14 +34,25 @@ var countries = [
 ];
 
 $('#first-city').autocomplete({
-    serviceUrl: 'https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/districts.js',
-    paramName: 'name',
+    serviceUrl: 'https://raw.githubusercontent.com/devbridge/jQuery-Autocomplete/master/scripts/countries.js',
+    // paramName: 'name',
+    // transformResult: function(response) {
+    // return {
+    //     suggestions: $.map(response, function(dataItem) {
+    //         return {
+    //           value: dataItem.name,
+    //           data: dataItem.id
+    //         };
+    //     })
+    //   };
+    // },
     type: "GET",
     crossDomain: true,
     onSelect: function (suggestion) {
-        console.log(('You selected: ' + suggestion.name + ', ' + suggestion.name));
+        console.log(('You selected: ' + suggestion.value + ', ' + suggestion.data));
     }
 });
+$('#first-city').autocomplete().enable();
 
 },{"leaflet-ajax":4}],2:[function(require,module,exports){
 (function (global){

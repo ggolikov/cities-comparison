@@ -33,22 +33,22 @@ var countries = [
 ];
 
 $('#first-city').autocomplete({
-    serviceUrl: 'https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/districts.js',
-    paramName: 'name',
-    console.log(response);
-    transformResult: function(response) {
-    return {
-        suggestions: $.map(response, function(dataItem) {
-            return {
-              value: dataItem.name,
-              data: dataItem.id
-            };
-        })
-      };
-    }
+    serviceUrl: 'https://raw.githubusercontent.com/devbridge/jQuery-Autocomplete/master/scripts/countries.js',
+    // paramName: 'name',
+    // transformResult: function(response) {
+    // return {
+    //     suggestions: $.map(response, function(dataItem) {
+    //         return {
+    //           value: dataItem.name,
+    //           data: dataItem.id
+    //         };
+    //     })
+    //   };
+    // },
     type: "GET",
     crossDomain: true,
     onSelect: function (suggestion) {
         console.log(('You selected: ' + suggestion.value + ', ' + suggestion.data));
     }
 });
+$('#first-city').autocomplete().enable();
