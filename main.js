@@ -26,29 +26,36 @@ map.addLayer(borders);
 ** search-box
 */
 
-var countries = [
-    { value: 'Andorra', data: 'AD' },
-    // ...
-    { value: 'Zimbabwe', data: 'ZZ' }
-];
+// $('#first-city').autocomplete({
+  // serviceUrl: 'https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/countries.js',
 
+
+$(function() {
+    var availableTags = [
+      "ActionScript",
+      "AppleScript",
+      "Asp",
+      "BASIC",
+      "C",
+      "C++",
+      "Clojure",
+      "COBOL",
+      "ColdFusion",
+      "Erlang",
+      "Fortran",
+      "Groovy",
+      "Haskell",
+      "Java",
+      "JavaScript",
+      "Lisp",
+      "Perl",
+      "PHP",
+      "Python",
+      "Ruby",
+      "Scala",
+      "Scheme"
+    ];
 $('#first-city').autocomplete({
-    serviceUrl: 'https://raw.githubusercontent.com/devbridge/jQuery-Autocomplete/master/scripts/countries.js',
-    // paramName: 'name',
-    // transformResult: function(response) {
-    // return {
-    //     suggestions: $.map(response, function(dataItem) {
-    //         return {
-    //           value: dataItem.name,
-    //           data: dataItem.id
-    //         };
-    //     })
-    //   };
-    // },
-    type: "GET",
-    crossDomain: true,
-    onSelect: function (suggestion) {
-        console.log(('You selected: ' + suggestion.value + ', ' + suggestion.data));
-    }
-});
-$('#first-city').autocomplete().enable();
+      // source:
+    });
+  });
