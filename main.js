@@ -56,6 +56,6 @@ $(function() {
       "Scheme"
     ];
 $('#first-city').autocomplete({
-      // source:
+      source: availableTags
     });
   });
