@@ -9,78 +9,103 @@ var mapQuest = L.tileLayer('http://otile4.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.
             attribution: '&copy; <a href="www.openstreetmap.org/copyright">OpenStreetMap</a>'
           });
 
-var map = L.map(document.getElementsByClassName('map')[0]).setView([56, 37], 5);
+var map = L.map(document.getElementsByClassName('map')[0]).setView([55.58415969422116, 37.385264449999966], 9);
 map.addLayer(mapQuest);
 
 /**
 ** Set GeoJSON
 */
-var txt = 'Красногвардейский район';
 
-var borders = new L.geoJson.ajax("https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/districts.js", {
-    onEachFeature: function(feature, marker) {
-      marker.bindPopup(feature.properties.name);
-    },
-    // filter: function(feature){
-    //   return feature.properties.name == txt;
-    // }
-  });
-map.addLayer(borders);
-
-var first = document.getElementById('first-city');
 
 /**
 ** search-box
 */
 
-
-var smth = [
-  "aaa",
-  "bbb",
-  "baa",
-  "abbc",
-  "C",
-]
+// var json;
+// var xhr = new XMLHttpRequest();
+// xhr.open('GET', 'https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/moscow.geo.json', true);
+// xhr.send();
+// xhr.onload = function() {
+//   json = xhr.responseText;
+//   console.log(json);
+// }
+//   $.ajax({
+//     url: "https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/moscow.geo.json",
+//     dataType: "json",
+//     success: function( data ) {
+//       return ($.map(data.features, function(item) {
+//         console.log({
+//           label: item.name,
+//           value: item.name
+//         });
+//       }))
+//     }
+//   });
+// $.getJSON('src/moscow.geo.json', function(data){
+//   console.log(data.features[0].name);
+// });
+var borders;
+var query = [];
 
 $(function() {
   $('#first-city').autocomplete({
-        source: function(request, response) {
-            $.ajax({
-              url: "/search",
-                dataType: "json",
-                type : 'Get',
-                data: {
-                  q: request.term
-                },
-                success: function(data) {
-                    response(data);
-                },
-                error: function(data) {
-                    $('#first-city').removeClass('ui-autocomplete-loading');
-                }
-            });
+    source: function( request, response ) {
+      $.ajax({
+        url: "https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/moscow.geo.json",
+        dataType: "json",
+        data: {
+          term: request.term
         },
-        minLength: 1,
-        open: function() {},
-        close: function() {},
-        focus: function(event,ui) {},
-        select: function(event, ui) {}
-    });
+        success: function( data ) {
+          response($.map(data.features, function(item) {
+            return {
+              label: item.name,
+              value: item.name
+            }
+          }))
+        }
+      });
+    },
+    minLength: 2,
+    select: function(event, ui) {
+      query.length = 0;
+      if (borders) {
+        map.removeLayer(borders);
+      }
+      query.push(ui.item.value);
+      console.log(ui.item.value);
+      console.log(query);
+
+      borders = new L.geoJson.ajax("https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/moscow.geo.json", {
+        onEachFeature: function(feature, layer) {
+          layer.bindPopup(feature.properties.name);
+          console.log(layer.getBounds());
+          map.fitBounds(layer.getBounds());
+        },
+        style: function(feature) {
+          switch (feature.properties.name) {
+            case 'Зеленоградский административный округ': return {weight: 2, color: "red", fillColor: "yellow", opacity: 1, fillOpacity: 0.2};
+            case 'Восточный административный округ':   return {weight: 2, color: "red", fillColor: "yellow", opacity: 1, fillOpacity: 0.2};
+            case 'Юго-Восточный административный округ':   return {weight: 2, color: "red", fillColor: "yellow", opacity: 1, fillOpacity: 0.2};
+            case 'Южный административный округ':   return {weight: 2, color: "red", fillColor: "yellow", opacity: 1, fillOpacity: 0.2};
+            case 'Юго-Западный административный округ':   return {weight: 2, color: "red", fillColor: "yellow", opacity: 1, fillOpacity: 0.2};
+            case 'Западный административный округ':   return {weight: 2, color: "red", fillColor: "yellow", opacity: 1, fillOpacity: 0.2};
+            case 'Северо-Западный административный округ':   return {weight: 2, color: "red", fillColor: "yellow", opacity: 1, fillOpacity: 0.2};
+            case 'Северный административный округ':   return {weight: 2, color: "red", fillColor: "yellow", opacity: 1, fillOpacity: 0.2};
+            case 'Северо-Восточный административный округ':   return {weight: 2, color: "red", fillColor: "yellow", opacity: 1, fillOpacity: 0.2};
+            case 'Центральный административный округ':   return {weight: 2, color: "red", fillColor: "yellow", opacity: 1, fillOpacity: 0.2};
+            case 'Троицкий административный округ':   return {weight: 2, color: "red", fillColor: "yellow", opacity: 1, fillOpacity: 0.2};
+            case 'Новомосковский административный округ':   return {weight: 2, color: "red", fillColor: "yellow", opacity: 1, fillOpacity: 0.2};
+          }
+        },
+        filter: function(feature) {
+          return feature.name == query[query.length-1];
+        }
+      });
+      map.addLayer(borders);
+    }
+  });
 });
-var json;
-var xhr = new XMLHttpRequest();
-xhr.open('GET', '/search/example.json', true);
-xhr.send();
-// xhr.onreadystatechange = function() {
-//   if (xhr.readyState != 4) return;
-//   else {
-//     json = xhr.responseText;
-//   }
-// }
-xhr.onload = function() {
-  json = xhr.responseText;
-  console.log(json);
-}
 
 },{"leaflet-ajax":4}],2:[function(require,module,exports){
 (function (global){
