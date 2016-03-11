@@ -39,7 +39,7 @@ $(function() {
         }
       });
     },
-    minLength: 3,
+    minLength: 1,
     select: function(event, ui) {
       query.length = 0;
       if (borders) {
