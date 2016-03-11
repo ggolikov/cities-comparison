@@ -32,5 +32,8 @@
   "bugs": {
     "url": "https://github.com/ggolikov/cities-comparison/issues"
   },
-  "homepage": "https://github.com/ggolikov/cities-comparison#readme"
+  "homepage": "https://github.com/ggolikov/cities-comparison#readme",
+  "devDependencies": {
+    "serve": "^1.4.0"
+  }
 }
