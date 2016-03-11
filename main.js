@@ -13,59 +13,33 @@ map.addLayer(mapQuest);
 
 /**
 ** Set GeoJSON
-*/
-
-
-/**
+**
 ** search-box
 */
 
-// var json;
-// var xhr = new XMLHttpRequest();
-// xhr.open('GET', 'https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/moscow.geo.json', true);
-// xhr.send();
-// xhr.onload = function() {
-//   json = xhr.responseText;
-//   console.log(json);
-// }
-//   $.ajax({
-//     url: "https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/moscow.geo.json",
-//     dataType: "json",
-//     success: function( data ) {
-//       return ($.map(data.features, function(item) {
-//         console.log({
-//           label: item.name,
-//           value: item.name
-//         });
-//       }))
-//     }
-//   });
-// $.getJSON('src/moscow.geo.json', function(data){
-//   console.log(data.features[0].name);
-// });
 var borders;
 var query = [];
 
 $(function() {
   $('#first-city').autocomplete({
-    source: function( request, response ) {
+    source: function(request, response) {
       $.ajax({
         url: "https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/moscow.geo.json",
         dataType: "json",
-        data: {
-          term: request.term
-        },
-        success: function( data ) {
+        data: request,
+        success: function(data) {
           response($.map(data.features, function(item) {
-            return {
-              label: item.name,
-              value: item.name
+             if (item.name.toLowerCase().indexOf(request.term.toLowerCase()) > -1) {
+              return {
+                label: item.name,
+                value: item.name
+              };
             }
           }))
         }
       });
     },
-    minLength: 2,
+    minLength: 3,
     select: function(event, ui) {
       query.length = 0;
       if (borders) {
