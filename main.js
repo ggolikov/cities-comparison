@@ -20,9 +20,9 @@ var borders = new L.geoJson.ajax("https://raw.githubusercontent.com/ggolikov/cit
     onEachFeature: function(feature, marker) {
       marker.bindPopup(feature.properties.name);
     },
-    filter: function(feature){
-      return feature.properties.name == txt;
-    }
+    // filter: function(feature){
+    //   return feature.properties.name == txt;
+    // }
   });
 map.addLayer(borders);
 
@@ -66,15 +66,17 @@ $(function() {
         select: function(event, ui) {}
     });
 });
-
+var json;
 var xhr = new XMLHttpRequest();
-xhr.open('GET', '/search/example.json', false);
+xhr.open('GET', '/search/example.json', true);
 xhr.send();
-if (xhr.status != 200) {
-  // обработать ошибку
-  alert( xhr.status + ': ' + xhr.statusText ); // пример вывода: 404: Not Found
-} else {
-  // вывести результат
-  console.log(( xhr.responseText )); // responseText -- текст ответа.
+// xhr.onreadystatechange = function() {
+//   if (xhr.readyState != 4) return;
+//   else {
+//     json = xhr.responseText;
+//   }
+// }
+xhr.onload = function() {
+  json = xhr.responseText;
+  console.log(json);
 }
-console.log(xhr.response);
