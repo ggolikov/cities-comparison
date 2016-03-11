@@ -46,13 +46,10 @@ $(function() {
         map.removeLayer(borders);
       }
       query.push(ui.item.value);
-      console.log(ui.item.value);
-      console.log(query);
 
       borders = new L.geoJson.ajax("https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/moscow.geo.json", {
         onEachFeature: function(feature, layer) {
           layer.bindPopup(feature.properties.name);
-          console.log(layer.getBounds());
           map.fitBounds(layer.getBounds());
         },
         style: function(feature) {
