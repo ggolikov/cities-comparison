@@ -6,27 +6,37 @@ body {
   width: auto;
 }
 h1 {
-  font-size: 37px;
+  font-size: 20px;
   color: red;
   font-family: arial;
   color: white;
   text-align: center;
 }
-table {
-  width: 100%;
-}
+
 .top {
   min-width: 250px;
   width: auto;
   height: 10%;
-  min-height: 100px;
+  min-height: 110px;
   background-color: #0E0E0E;
 }
+table {
+  width: 100%;
+  height: 80%;
+}
+tbody {
+  width: 100%;
+  height: 80%;
+}
 #first-city {
-  float: right;
+  width:  40%;
+  margin-left:  30%;
+  margin-right: 30%;
 }
 #second-city {
-  float: left;
+  width:  40%;
+  margin-left:  30%;
+  margin-right: 30%;
 }
 .map {
   width:auto;
