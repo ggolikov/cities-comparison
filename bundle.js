@@ -2,19 +2,16 @@
 require('leaflet-ajax');
 
 /**
-** Set MapQuest
+** Set Mapbox
 */
 
-var mapQuest = L.tileLayer('http://otile4.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          });
 
 var map = L.map(document.getElementsByClassName('map')[0]).setView([55.58415969422116, 37.385264449999966], 9);
-map.addLayer(mapQuest);
+var mapBox = L.tileLayer.provider('MapBox', {id: 'businesstat.liek2okp', accessToken: 'pk.eyJ1IjoiYnVzaW5lc3N0YXQiLCJhIjoiQ1hVdVdxZyJ9.sXqLsSh-1vhh11_BSL-g4Q'}).addTo(map);
 
 /**
 ** Set GeoJSON
-**
+** &
 ** search-box
 */
 
