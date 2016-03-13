@@ -16,17 +16,8 @@ var mapBox = L.tileLayer.provider('MapBox', {id: 'businesstat.liek2okp', accessT
 */
 
 var borders, districts;
-districts = new L.geoJson.ajax("https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/moscow_districts.geo.json", {
-  // onEachFeature: function(feature, layer) {
-  //   layer.bindPopup(feature.properties.NAME_MO);
-  // },
-  // style: distStyle,
-  // filter: function(feature) {
-  //   return feature.NAME_AO + ' административный округ' == query[query.length-1];
-  // }
-});
-map.addLayer(districts);
 var query = [];
+var randomColor = '#'+Math.floor(Math.random()*16777215).toString(16);
 
 $(function() {
   $('#first-city').autocomplete({
@@ -60,23 +51,23 @@ $(function() {
 
       borders = new L.geoJson.ajax("https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/moscow.geo.json", {
         onEachFeature: function(feature, layer) {
-          layer.bindPopup(feature.properties.name);
+          // layer.bindPopup(feature.properties.name);
           map.fitBounds(layer.getBounds());
         },
         style: function(feature) {
           switch (feature.properties.name) {
-            case 'Зеленоградский административный округ': return {weight: 2, color: "red", fillColor: "yellow", opacity: 1, fillOpacity: 0.2};
-            case 'Восточный административный округ':   return {weight: 2, color: "red", fillColor: "yellow", opacity: 1, fillOpacity: 0.2};
-            case 'Юго-Восточный административный округ':   return {weight: 2, color: "red", fillColor: "yellow", opacity: 1, fillOpacity: 0.2};
-            case 'Южный административный округ':   return {weight: 2, color: "red", fillColor: "yellow", opacity: 1, fillOpacity: 0.2};
-            case 'Юго-Западный административный округ':   return {weight: 2, color: "red", fillColor: "yellow", opacity: 1, fillOpacity: 0.2};
-            case 'Западный административный округ':   return {weight: 2, color: "red", fillColor: "yellow", opacity: 1, fillOpacity: 0.2};
-            case 'Северо-Западный административный округ':   return {weight: 2, color: "red", fillColor: "yellow", opacity: 1, fillOpacity: 0.2};
-            case 'Северный административный округ':   return {weight: 2, color: "red", fillColor: "yellow", opacity: 1, fillOpacity: 0.2};
-            case 'Северо-Восточный административный округ':   return {weight: 2, color: "red", fillColor: "yellow", opacity: 1, fillOpacity: 0.2};
-            case 'Центральный административный округ':   return {weight: 2, color: "red", fillColor: "yellow", opacity: 1, fillOpacity: 0.2};
-            case 'Троицкий административный округ':   return {weight: 2, color: "red", fillColor: "yellow", opacity: 1, fillOpacity: 0.2};
-            case 'Новомосковский административный округ':   return {weight: 2, color: "red", fillColor: "yellow", opacity: 1, fillOpacity: 0.2};
+            case 'Зеленоградский административный округ': return {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2};
+            case 'Восточный административный округ':   return {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2};
+            case 'Юго-Восточный административный округ':   return {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2};
+            case 'Южный административный округ':   return {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2};
+            case 'Юго-Западный административный округ':   return {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2};
+            case 'Западный административный округ':   return {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2};
+            case 'Северо-Западный административный округ':   return {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2};
+            case 'Северный административный округ':   return {weight: 3, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2};
+            case 'Северо-Восточный административный округ':   return {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2};
+            case 'Центральный административный округ':   return {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2};
+            case 'Троицкий административный округ':   return {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2};
+            case 'Новомосковский административный округ':   return {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2};
           }
         },
         filter: function(feature) {
@@ -87,22 +78,41 @@ $(function() {
       var distStyle = {
         weight: 1,
         color: "grey",
-        fillColor: "yellow",
+        fillColor: "white",
         opacity: 1,
-        fillOpacity: 0.2
+        fillOpacity: 0
       };
 
-      // districts = new L.geoJson.ajax("https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/moscow_districts.geo.json", {
-      //   // onEachFeature: function(feature, layer) {
-      //   //   layer.bindPopup(feature.properties.NAME_MO);
-      //   // },
-      //   // style: distStyle,
-      //   // filter: function(feature) {
-      //   //   return feature.NAME_AO + ' административный округ' == query[query.length-1];
-      //   // }
-      // });
-      // map.addLayer(districts);
-      // map.addLayer(borders);
+      districts = new L.geoJson.ajax("https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/moscow_districts.geo.json", {
+        onEachFeature: function(feature, layer) {
+          layer.bindPopup(feature.properties.NAME);
+          layer.on({
+            mouseover: highlightFeature,
+            mouseout: resetHighlight,
+          });
+        },
+        style: distStyle,
+        filter: function(feature) {
+          return feature.properties.NAME_AO + ' административный округ' == query[query.length-1];
+        }
+      });
+
+      function highlightFeature(e) {
+        var layer = e.target;
+        layer.setStyle({
+          weight: 1,
+          color: "grey",
+          fillColor: "yellow",
+          fillOpacity: 0.3
+        });
+      }
+
+    function resetHighlight(e) {
+        districts.resetStyle(e.target);
+    }
+
+      map.addLayer(districts);
+      map.addLayer(borders);
     }
   });
 });
