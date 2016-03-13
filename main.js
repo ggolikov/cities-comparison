@@ -14,7 +14,17 @@ var mapBox = L.tileLayer.provider('MapBox', {id: 'businesstat.liek2okp', accessT
 ** search-box
 */
 
-var borders;
+var borders, districts;
+districts = new L.geoJson.ajax("https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/moscow_districts.geo.json", {
+  // onEachFeature: function(feature, layer) {
+  //   layer.bindPopup(feature.properties.NAME_MO);
+  // },
+  // style: distStyle,
+  // filter: function(feature) {
+  //   return feature.NAME_AO + ' административный округ' == query[query.length-1];
+  // }
+});
+map.addLayer(districts);
 var query = [];
 
 $(function() {
@@ -41,6 +51,9 @@ $(function() {
       query.length = 0;
       if (borders) {
         map.removeLayer(borders);
+      }
+      if (districts) {
+        map.removeLayer(districts);
       }
       query.push(ui.item.value);
 
@@ -69,7 +82,26 @@ $(function() {
           return feature.name == query[query.length-1];
         }
       });
-      map.addLayer(borders);
+
+      var distStyle = {
+        weight: 1,
+        color: "grey",
+        fillColor: "yellow",
+        opacity: 1,
+        fillOpacity: 0.2
+      };
+
+      // districts = new L.geoJson.ajax("https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/moscow_districts.geo.json", {
+      //   // onEachFeature: function(feature, layer) {
+      //   //   layer.bindPopup(feature.properties.NAME_MO);
+      //   // },
+      //   // style: distStyle,
+      //   // filter: function(feature) {
+      //   //   return feature.NAME_AO + ' административный округ' == query[query.length-1];
+      //   // }
+      // });
+      // map.addLayer(districts);
+      // map.addLayer(borders);
     }
   });
 });
