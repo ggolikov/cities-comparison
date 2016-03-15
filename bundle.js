@@ -19,6 +19,11 @@ var borders, districts;
 var query = [];
 var randomColor = '#'+Math.floor(Math.random()*16777215).toString(16);
 
+/*
+**  configure first input 
+*/
+
+
 $(function() {
   $('#first-city').autocomplete({
     source: function(request, response) {
@@ -111,8 +116,83 @@ $(function() {
         districts.resetStyle(e.target);
     }
 
+    $('#second-city').removeAttr("disabled");
+
+    map.addLayer(districts);
+    map.addLayer(borders);
+    }
+    });
+});
+
+/*
+**  configure second input
+*/
+
+$(function() {
+    $('#second-city').autocomplete({
+      source: function(request, response) {
+        $.ajax({
+          url: "https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/moscow_districts.geo.json",
+          dataType: "json",
+          data: request,
+          success: function(data) {
+            response($.map(data.features, function(item) {
+               if (item.properties.NAME.toLowerCase().indexOf(request.term.toLowerCase()) > -1) {
+                return {
+                  label: item.properties.NAME,
+                  value: item.properties.NAME
+                };
+              }
+            }))
+          }
+        });
+      },
+      minLength: 1,
+      select: function(event, ui) {
+        query.length = 0;
+        if (districts) {
+          map.removeLayer(districts);
+        }
+        query.push(ui.item.value);
+
+        var distStyle = {
+          weight: 1,
+          color: "grey",
+          fillColor: randomColor,
+          opacity: 1,
+          fillOpacity: 0.7
+        };
+
+        districts = new L.geoJson.ajax("https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/moscow_districts.geo.json", {
+          onEachFeature: function(feature, layer) {
+            map.fitBounds(layer.getBounds());
+            layer.bindPopup(feature.properties.NAME);
+            layer.on({
+              mouseover: highlightFeature,
+              mouseout: resetHighlight,
+            });
+          },
+          style: distStyle,
+          filter: function(feature) {
+            return feature.properties.NAME == query[query.length-1];
+          }
+        });
+
+        function highlightFeature(e) {
+          var layer = e.target;
+          layer.setStyle({
+            weight: 1,
+            color: "grey",
+            fillColor: "yellow",
+            fillOpacity: 0.3
+          });
+        }
+
+      function resetHighlight(e) {
+          districts.resetStyle(e.target);
+      }
+
       map.addLayer(districts);
-      map.addLayer(borders);
     }
   });
 });
