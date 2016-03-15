@@ -15,11 +15,12 @@ var mapBox = L.tileLayer.provider('MapBox', {id: 'businesstat.liek2okp', accessT
 */
 
 var borders, districts;
+var novo = [];
 var query = [];
 var randomColor = '#'+Math.floor(Math.random()*16777215).toString(16);
 
 /*
-**  configure first input 
+**  configure first input
 */
 
 
@@ -48,14 +49,16 @@ $(function() {
       if (borders) {
         map.removeLayer(borders);
       }
-      if (districts) {
-        map.removeLayer(districts);
-      }
+      // if (districts) {
+      //   map.removeLayer(districts);
+      // }
       query.push(ui.item.value);
 
       borders = new L.geoJson.ajax("https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/moscow.geo.json", {
         onEachFeature: function(feature, layer) {
-          // layer.bindPopup(feature.properties.name);
+          layer.bindPopup(feature.properties.name);
+          // novo.push(layer.getLatLngs());
+          // console.log(novo[0]);
           map.fitBounds(layer.getBounds());
         },
         style: function(feature) {
@@ -79,45 +82,45 @@ $(function() {
         }
       });
 
-      var distStyle = {
-        weight: 1,
-        color: "grey",
-        fillColor: "white",
-        opacity: 1,
-        fillOpacity: 0
-      };
-
-      districts = new L.geoJson.ajax("https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/moscow_districts.geo.json", {
-        onEachFeature: function(feature, layer) {
-          layer.bindPopup(feature.properties.NAME);
-          layer.on({
-            mouseover: highlightFeature,
-            mouseout: resetHighlight,
-          });
-        },
-        style: distStyle,
-        filter: function(feature) {
-          return feature.properties.NAME_AO + ' административный округ' == query[query.length-1];
-        }
-      });
-
-      function highlightFeature(e) {
-        var layer = e.target;
-        layer.setStyle({
-          weight: 1,
-          color: "grey",
-          fillColor: "yellow",
-          fillOpacity: 0.3
-        });
-      }
-
-    function resetHighlight(e) {
-        districts.resetStyle(e.target);
-    }
+    //   var distStyle = {
+    //     weight: 1,
+    //     color: "grey",
+    //     fillColor: "white",
+    //     opacity: 1,
+    //     fillOpacity: 0
+    //   };
+    //
+    //   districts = new L.geoJson.ajax("https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/moscow_districts.geo.json", {
+    //     onEachFeature: function(feature, layer) {
+    //       layer.bindPopup(feature.properties.NAME);
+    //       layer.on({
+    //         mouseover: highlightFeature,
+    //         mouseout: resetHighlight,
+    //       });
+    //     },
+    //     style: distStyle,
+    //     filter: function(feature) {
+    //       return feature.properties.NAME_AO + ' административный округ' == query[query.length-1];
+    //     }
+    //   });
+    //
+    //   function highlightFeature(e) {
+    //     var layer = e.target;
+    //     layer.setStyle({
+    //       weight: 1,
+    //       color: "grey",
+    //       fillColor: "yellow",
+    //       fillOpacity: 0.3
+    //     });
+    //   }
+    //
+    // function resetHighlight(e) {
+    //     districts.resetStyle(e.target);
+    // }
 
     $('#second-city').removeAttr("disabled");
 
-    map.addLayer(districts);
+    // map.addLayer(districts);
     map.addLayer(borders);
     }
     });
@@ -165,6 +168,7 @@ $(function() {
         districts = new L.geoJson.ajax("https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/moscow_districts.geo.json", {
           onEachFeature: function(feature, layer) {
             map.fitBounds(layer.getBounds());
+            // console.log(layer.getBounds());
             layer.bindPopup(feature.properties.NAME);
             layer.on({
               mouseover: highlightFeature,
@@ -192,6 +196,38 @@ $(function() {
       }
 
       map.addLayer(districts);
+/*
+**    move polygon
+*/
+
+      districts.once('data:loaded', function() {
+        var poly = new L.Polygon(borders.getLayers()[0].getLatLngs());
+        var center = poly.getBounds().getCenter();
+        var points = poly.getLatLngs();
+          var offsets = []
+          for (var i = 0; i < points.length; i++)  {
+            var point = [];
+            point.push(points[i].lat - center.lat);
+            point.push(points[i].lng - center.lng);
+            offsets.push(point);
+          }
+          offsets.push(point);
+
+          var lat = districts.getBounds().getCenter().lat;
+          var lng = districts.getBounds().getCenter().lng;
+          map.panTo(borders.getBounds().getCenter());
+          var newpoints = [];
+          for (var i = 0; i < offsets.length; i++)  {
+            var point = [];
+            point.push(lat + offsets[i][0]);
+            point.push(lng + offsets[i][1]);
+            newpoints.push(point);
+	        }
+            var shift = L.polygon(newpoints, {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2}).addTo(map);
+            map.fitBounds(shift);
+            map.removeLayer(borders);
+      });
+
     }
   });
 });
