@@ -14,8 +14,7 @@ var mapBox = L.tileLayer.provider('MapBox', {id: 'businesstat.liek2okp', accessT
 ** search-box
 */
 
-var borders, districts;
-var novo = [];
+var borders, districts, shift;
 var query = [];
 var randomColor = '#'+Math.floor(Math.random()*16777215).toString(16);
 
@@ -49,9 +48,9 @@ $(function() {
       if (borders) {
         map.removeLayer(borders);
       }
-      // if (districts) {
-      //   map.removeLayer(districts);
-      // }
+      if (shift) {
+        map.removeLayer(shift);
+      }
       query.push(ui.item.value);
 
       borders = new L.geoJson.ajax("https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/moscow.geo.json", {
@@ -155,6 +154,9 @@ $(function() {
         if (districts) {
           map.removeLayer(districts);
         }
+        if (shift) {
+          map.removeLayer(shift);
+        }
         query.push(ui.item.value);
 
         var distStyle = {
@@ -167,8 +169,7 @@ $(function() {
 
         districts = new L.geoJson.ajax("https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/moscow_districts.geo.json", {
           onEachFeature: function(feature, layer) {
-            map.fitBounds(layer.getBounds());
-            // console.log(layer.getBounds());
+            // map.fitBounds(layer.getBounds());
             layer.bindPopup(feature.properties.NAME);
             layer.on({
               mouseover: highlightFeature,
@@ -224,9 +225,10 @@ $(function() {
             point.push(lng + offsets[i][1]);
             newpoints.push(point);
 	        }
-            var shift = L.polygon(newpoints, {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2}).addTo(map);
-            map.fitBounds(shift);
+            shift = L.polygon(newpoints, {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2}).addTo(map);
             map.removeLayer(borders);
+            console.log(shift.getBounds());
+            map.fitBounds(shift.getBounds());
       });
 
     }
