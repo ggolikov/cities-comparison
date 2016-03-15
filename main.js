@@ -195,6 +195,7 @@ $(function() {
           districts.resetStyle(e.target);
       }
 
+
       map.addLayer(districts);
 /*
 **    move polygon
