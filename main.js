@@ -202,35 +202,113 @@ $(function() {
 **    move polygon
 */
 
-      districts.once('data:loaded', function() {
+      // districts.once('data:loaded', function() {
+      //   var poly = new L.Polygon(borders.getLayers()[0].getLatLngs());
+      //   var newJSON = poly.toGeoJSON();
+      //   console.log(newJSON);
+      //   var center = poly.getBounds().getCenter();
+      //   var points = poly.getLatLngs();
+      //     var offsets = []
+      //     for (var i = 0; i < points.length; i++)  {
+      //       var point = [];
+      //       point.push(points[i].lat - center.lat);
+      //       point.push(points[i].lng - center.lng);
+      //       offsets.push(point);
+      //     }
+      //     offsets.push(point);
+      //
+      //     var lat = districts.getBounds().getCenter().lat;
+      //     var lng = districts.getBounds().getCenter().lng;
+      //     map.panTo(borders.getBounds().getCenter());
+      //     var newpoints = [];
+      //     for (var i = 0; i < offsets.length; i++)  {
+      //       var point = [];
+      //       point.push(lat + offsets[i][0]);
+      //       point.push(lng + offsets[i][1]);
+      //       newpoints.push(point);
+	    //     }
+      //       shift = L.polygon(newpoints, {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2}).addTo(map);
+      //       map.removeLayer(borders);
+      //       console.log(shift.getBounds());
+      //       map.fitBounds(shift.getBounds());
+      // });
+
+      /*
+      **    overlay implementation using D3
+      */
+
+    districts.once('data:loaded', function() {
         var poly = new L.Polygon(borders.getLayers()[0].getLatLngs());
-        var center = poly.getBounds().getCenter();
-        var points = poly.getLatLngs();
-          var offsets = []
-          for (var i = 0; i < points.length; i++)  {
-            var point = [];
-            point.push(points[i].lat - center.lat);
-            point.push(points[i].lng - center.lng);
-            offsets.push(point);
-          }
-          offsets.push(point);
+        var newJSON = poly.toGeoJSON();
+        console.log(newJSON);
 
-          var lat = districts.getBounds().getCenter().lat;
-          var lng = districts.getBounds().getCenter().lng;
-          map.panTo(borders.getBounds().getCenter());
-          var newpoints = [];
-          for (var i = 0; i < offsets.length; i++)  {
-            var point = [];
-            point.push(lat + offsets[i][0]);
-            point.push(lng + offsets[i][1]);
-            newpoints.push(point);
-	        }
-            shift = L.polygon(newpoints, {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2}).addTo(map);
-            map.removeLayer(borders);
-            console.log(shift.getBounds());
-            map.fitBounds(shift.getBounds());
-      });
+        var svg = d3.select(map.getPanes().overlayPane).append("svg"),
+        g = svg.append("g").attr("class", "leaflet-zoom-hide");
 
+        // var width = 700,
+        // height = 580;
+        //
+        // var albersProjection = d3.geo.albers()
+        //   .scale( 190000 )
+        //   .rotate( [71.057,0] )
+        //   .center( [0, 42.313] )
+        //   .translate( [width/2,height/2] );
+        //
+        // var geoPath = d3.geo.path()
+        //   .projection( albersProjection );
+        //
+        // borders.selectAll("path")
+        //   .data(borders.features)
+        //   .enter()
+        //   .append("path")
+        //   .attr( "fill", "#ccc" )
+        //   .attr( "d", geoPath );
+
+
+      function createSVG(error, borders) {
+          if (error) throw error;
+
+          var transform = d3.geo.transform({point: projectPoint}),
+          projection = d3.geo.albers(),
+            // .rotate([96, 0])
+            // .center([-0.6, 38.7])
+            // .parallels([29.5, 45.5])
+            // .scale(1070)
+            // .translate([960/2,500/2])
+            // .precision(0.1),
+          path = d3.geo.path().projection(transform);
+
+          var feature = g.selectAll("path")
+            .data(borders.features)
+            .enter().append("path");
+
+            map.on("viewreset", reset);
+            reset();
+
+  // Reposition the SVG to cover the features.
+        function reset() {
+            var bounds = path.bounds(borders),
+              topLeft = bounds[0],
+                bottomRight = bounds[1];
+
+        svg.attr("width", bottomRight[0] - topLeft[0])
+          .attr("height", bottomRight[1] - topLeft[1])
+          .style("left", topLeft[0] + "px")
+          .style("top", topLeft[1] + "px");
+
+        g.attr("transform", "translate(" + -topLeft[0] + "," + -topLeft[1] + ")");
+
+        feature.attr("d", path);
+      }
+
+      // Use Leaflet to implement a D3 geometric transformation.
+    function projectPoint(x, y) {
+      var point = map.latLngToLayerPoint(new L.LatLng(y, x));
+      this.stream.point(point.x, point.y);
     }
+  };
+  createSVG();
   });
-});
+  } //select
+  }); //autocomplete
+}); //$
