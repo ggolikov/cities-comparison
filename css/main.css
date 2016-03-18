@@ -47,6 +47,27 @@ tbody {
   color: inherit;
   background-color: white;
 }
+
+/*svg options*/
+
+svg {
+  position: relative;
+}
+/*
+path {
+  fill: #000;
+  fill-opacity: .2;
+  stroke: #fff;
+  stroke-width: 1px;
+}
+
+path:hover {
+  fill: brown;
+  fill-opacity: .7;
+}*/
+
+/*scroll options*/
+
 a:link {
   text-decoration: none;
   color: #fff;
