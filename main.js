@@ -4,8 +4,7 @@ require('leaflet-ajax');
 ** Set Mapbox
 */
 
-
-var map = L.map(document.getElementsByClassName('map')[0]).setView([55.58415969422116, 37.385264449999966], 9);
+var map = L.map(document.getElementsByClassName('map')[0]).setView([55.58415969422116, 37.385264449999966],9);
 var mapBox = L.tileLayer.provider('MapBox', {id: 'businesstat.liek2okp', accessToken: 'pk.eyJ1IjoiYnVzaW5lc3N0YXQiLCJhIjoiQ1hVdVdxZyJ9.sXqLsSh-1vhh11_BSL-g4Q'}).addTo(map);
 
 /**
@@ -15,13 +14,13 @@ var mapBox = L.tileLayer.provider('MapBox', {id: 'businesstat.liek2okp', accessT
 */
 
 var borders, districts, shift;
-var query = [];
+var query1 = [];
+var query2 = [];
 var randomColor = '#'+Math.floor(Math.random()*16777215).toString(16);
 
 /*
 **  configure first input
 */
-
 
 $(function() {
   $('#first-city').autocomplete({
@@ -44,20 +43,18 @@ $(function() {
     },
     minLength: 1,
     select: function(event, ui) {
-      query.length = 0;
+      query1.length = 0;
       if (borders) {
         map.removeLayer(borders);
       }
       if (shift) {
         map.removeLayer(shift);
       }
-      query.push(ui.item.value);
+      query1.push(ui.item.value);
 
       borders = new L.geoJson.ajax("https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/moscow.geo.json", {
         onEachFeature: function(feature, layer) {
           layer.bindPopup(feature.properties.name);
-          // novo.push(layer.getLatLngs());
-          // console.log(novo[0]);
           map.fitBounds(layer.getBounds());
         },
         style: function(feature) {
@@ -77,7 +74,7 @@ $(function() {
           }
         },
         filter: function(feature) {
-          return feature.name == query[query.length-1];
+          return feature.name == query1[query1.length-1];
         }
       });
 
@@ -149,15 +146,16 @@ $(function() {
         });
       },
       minLength: 1,
+
       select: function(event, ui) {
-        query.length = 0;
+        query2.length = 0;
         if (districts) {
           map.removeLayer(districts);
         }
         if (shift) {
           map.removeLayer(shift);
         }
-        query.push(ui.item.value);
+        query2.push(ui.item.value);
 
         var distStyle = {
           weight: 1,
@@ -169,7 +167,7 @@ $(function() {
 
         districts = new L.geoJson.ajax("https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/moscow_districts.geo.json", {
           onEachFeature: function(feature, layer) {
-            // map.fitBounds(layer.getBounds());
+            map.fitBounds(layer.getBounds());
             layer.bindPopup(feature.properties.NAME);
             layer.on({
               mouseover: highlightFeature,
@@ -178,7 +176,7 @@ $(function() {
           },
           style: distStyle,
           filter: function(feature) {
-            return feature.properties.NAME == query[query.length-1];
+            return feature.properties.NAME == query2[query2.length-1];
           }
         });
 
@@ -192,15 +190,15 @@ $(function() {
           });
         }
 
-      function resetHighlight(e) {
+        function resetHighlight(e) {
           districts.resetStyle(e.target);
-      }
+        }
 
+        map.addLayer(districts);
 
-      map.addLayer(districts);
-/*
-**    move polygon
-*/
+      /*
+      **    move polygon
+      */
 
       // districts.once('data:loaded', function() {
       //   var poly = new L.Polygon(borders.getLayers()[0].getLatLngs());
@@ -237,78 +235,128 @@ $(function() {
       **    overlay implementation using D3
       */
 
-    districts.once('data:loaded', function() {
+  //   districts.once('data:loaded', function() {
+  //       var poly = new L.Polygon(borders.getLayers()[0].getLatLngs());
+  //       // map.addLayer(poly);
+  //       var newJSON = poly.toGeoJSON();
+  //       console.log(poly);
+  //       console.log(newJSON);
+  //
+  //       var svg = d3.select(map.getPanes().overlayPane).append("svg"),
+  //       g = svg.append("g").attr("class", "leaflet-zoom-hide");
+  //
+  //       d3.json("https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/moscow.geo.json", function(error, collection) {
+  //         if (error) throw error;
+  //         console.log(collection);
+  //         var okrug = collection.features;
+  //         okrug.filter(function(feature){
+  //             return feature.name == 'Центральный административный округ';//query1[query1.length-1];
+  //             // console.log(feature.name);
+  //         });
+  //         console.log(okrug);
+  //         console.log(borders);
+  //         console.log(query1[query1.length-1]);
+  //
+  //         // var width = document.getElementsByClassName('map')[0].width,
+  //         // height = document.getElementsByClassName('map')[0].height;
+  //
+  //         var projection = d3.geo.mercator();
+  //           // .scale((width + 1) / 2 / Math.PI)
+  //           // .translate([width / 2, height / 2])
+  //           // .precision(.1);
+  //
+  //         var transform = d3.geo.transform({point: projectPoint}),
+  //             path = d3.geo.path().projection(projection);
+  //
+  //             var feature = g.selectAll("path")
+  //               .data(collection.features)
+  //           .enter().append("path");
+  //         map.on("viewreset", reset);
+  //         reset();
+  //
+  //         // Reposition the SVG to cover the features.
+  //         function reset() {
+  //           var bounds = path.bounds(collection),
+  //               topLeft = bounds[0],
+  //               bottomRight = bounds[1];
+  //
+  //           svg .attr("width", bottomRight[0] - topLeft[0])
+  //               .attr("height", bottomRight[1] - topLeft[1])
+  //               .style("left", topLeft[0] + "px")
+  //               .style("top", topLeft[1] + "px");
+  //
+  //           g   .attr("transform", "translate(" + -topLeft[0] + "," + -topLeft[1] + ")");
+  //
+  //           feature.attr("d", path);
+  //         }
+  //
+  //         // Use Leaflet to implement a D3 geometric transformation.
+  //         function projectPoint(x, y) {
+  //           var point = map.latLngToLayerPoint(new L.LatLng(y, x));
+  //           this.stream.point(point.x, point.y);
+  //         }
+  //       });
+  // });
+
+  /*
+  **    reproject
+  */
+
+      districts.once('data:loaded', function() {
         var poly = new L.Polygon(borders.getLayers()[0].getLatLngs());
+        map.addLayer(poly);
         var newJSON = poly.toGeoJSON();
-        console.log(newJSON);
+        // var behrmann = 'PROJCS["World_Behrmann",GEOGCS["GCS_WGS_1984",DATUM["WGS_1984",SPHEROID["WGS_1984",6378137,298.257223563]],PRIMEM["Greenwich",0],UNIT["Degree",0.017453292519943295]],PROJECTION["Behrmann"],PARAMETER["False_Easting",0],PARAMETER["False_Northing",0],PARAMETER["Central_Meridian",0],UNIT["Meter",1],AUTHORITY["EPSG","54017"]]';
+        // console.log(proj4(behrmann, [56,37]));
+        var customProjection = 'PROJCS["NAD83 / Massachusetts Mainland",GEOGCS["NAD83",DATUM["North_American_Datum_1983",SPHEROID["GRS 1980",6378137,298.257222101,AUTHORITY["EPSG","7019"]],AUTHORITY["EPSG","6269"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.01745329251994328,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4269"]],UNIT["metre",1,AUTHORITY["EPSG","9001"]],PROJECTION["Lambert_Conformal_Conic_2SP"],PARAMETER["standard_parallel_1",42.68333333333333],PARAMETER["standard_parallel_2",41.71666666666667],PARAMETER["latitude_of_origin",41],PARAMETER["central_meridian",-71.5],PARAMETER["false_easting",200000],PARAMETER["false_northing",750000],AUTHORITY["EPSG","26986"],AXIS["X",EAST],AXIS["Y",NORTH]]';
+        var wgs84 = 'GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4326"]]';
+        // console.log([poly._latlngs[0].lat, poly._latlngs[0].lng]);
+        // console.log(proj4(customProjection, [56,37]));
+        // console.log(proj4(wgs84, [poly._latlngs[0].lat, poly._latlngs[0].lng]));
 
-        var svg = d3.select(map.getPanes().overlayPane).append("svg"),
-        g = svg.append("g").attr("class", "leaflet-zoom-hide");
+        var projectedCoords = [];
+        for (var i = 0; i < poly._latlngs.length; i++) {
+          var coordinate = proj4(customProjection, [poly._latlngs[i].lat, poly._latlngs[i].lng]);
+          projectedCoords.push(coordinate);
+        }
+        console.log(projectedCoords);
+          var center = poly.getBounds().getCenter();
+          var projectedCenter = proj4(customProjection, [center.lat, center.lng]);
+          // console.log(center, reprojectedCenter);
+          // var points = poly.getLatLngs();
+          // console.log(projectedCoords[0]);
+          // console.log(projectedCoords[0][0], projectedCenter[0]);
+            var offsets = [];
+            for (var i = 0; i < projectedCoords.length; i++)  {
+              var point = [];
+              // console.log(projectedCoords[i]);
+              point.push(projectedCoords[i][0] - projectedCenter[0]);
+              point.push(projectedCoords[i][1] - pprojectedCoords[i][1]);
+              offsets.push(point);
+            }
+            // offsets.push(point);
+            console.log(offsets);
+            //
+            // var lat = districts.getBounds().getCenter().lat;
+            // var lng = districts.getBounds().getCenter().lng;
+            // map.panTo(borders.getBounds().getCenter());
+            // var newpoints = [];
+            // for (var i = 0; i < offsets.length; i++)  {
+            //   var point = [];
+            //   point.push(lat + offsets[i][0]);
+            //   point.push(lng + offsets[i][1]);
+            //   newpoints.push(point);
+  	        // }
+            //   shift = L.polygon(newpoints, {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2}).addTo(map);
+            //   map.removeLayer(borders);
+            //   console.log(shift.getBounds());
+            //   map.fitBounds(shift.getBounds());
+            //
+            //
+            //
 
-        // var width = 700,
-        // height = 580;
-        //
-        // var albersProjection = d3.geo.albers()
-        //   .scale( 190000 )
-        //   .rotate( [71.057,0] )
-        //   .center( [0, 42.313] )
-        //   .translate( [width/2,height/2] );
-        //
-        // var geoPath = d3.geo.path()
-        //   .projection( albersProjection );
-        //
-        // borders.selectAll("path")
-        //   .data(borders.features)
-        //   .enter()
-        //   .append("path")
-        //   .attr( "fill", "#ccc" )
-        //   .attr( "d", geoPath );
+      });
 
-
-      function createSVG(error, borders) {
-          if (error) throw error;
-
-          var transform = d3.geo.transform({point: projectPoint}),
-          projection = d3.geo.albers(),
-            // .rotate([96, 0])
-            // .center([-0.6, 38.7])
-            // .parallels([29.5, 45.5])
-            // .scale(1070)
-            // .translate([960/2,500/2])
-            // .precision(0.1),
-          path = d3.geo.path().projection(transform);
-
-          var feature = g.selectAll("path")
-            .data(borders.features)
-            .enter().append("path");
-
-            map.on("viewreset", reset);
-            reset();
-
-  // Reposition the SVG to cover the features.
-        function reset() {
-            var bounds = path.bounds(borders),
-              topLeft = bounds[0],
-                bottomRight = bounds[1];
-
-        svg.attr("width", bottomRight[0] - topLeft[0])
-          .attr("height", bottomRight[1] - topLeft[1])
-          .style("left", topLeft[0] + "px")
-          .style("top", topLeft[1] + "px");
-
-        g.attr("transform", "translate(" + -topLeft[0] + "," + -topLeft[1] + ")");
-
-        feature.attr("d", path);
-      }
-
-      // Use Leaflet to implement a D3 geometric transformation.
-    function projectPoint(x, y) {
-      var point = map.latLngToLayerPoint(new L.LatLng(y, x));
-      this.stream.point(point.x, point.y);
-    }
-  };
-  createSVG();
-  });
-  } //select
+    }  //select
   }); //autocomplete
 }); //$
