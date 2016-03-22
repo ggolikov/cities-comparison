@@ -40,33 +40,13 @@ tbody {
 }
 .map {
   width:auto;
-  height: 85%;
+  height: 90%;
   min-height: 300px;
 }
 .autocomplete-suggestions {
   color: inherit;
   background-color: white;
 }
-
-/*svg options*/
-
-svg {
-  position: relative;
-}
-/*
-path {
-  fill: #000;
-  fill-opacity: .2;
-  stroke: #fff;
-  stroke-width: 1px;
-}
-
-path:hover {
-  fill: brown;
-  fill-opacity: .7;
-}*/
-
-/*scroll options*/
 
 a:link {
   text-decoration: none;
@@ -95,4 +75,12 @@ a:visited {
 ::-webkit-scrollbar-track:hover{
     border-left: solid 1px #aaa;
     background-color: #eee;
+}
+.leaflet-control-minZoomIndicator {
+    font-size: 2em;
+    background: #ffffff;
+    background-color: rgba(255,255,255,0.7);
+    border-radius: 10px;
+    padding: 1px 15px;
+    opacity: 0.5;
 }
