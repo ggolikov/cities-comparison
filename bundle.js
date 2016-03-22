@@ -4,9 +4,23 @@ require('leaflet-ajax');
 /**
 ** Set Mapbox
 */
+var attr_osm = 'Map data &copy; <a href="http://openstreetmap.org/">OpenStreetMap</a> contributors',
+attr_overpass = 'POI via <a href="http://www.overpass-api.de/">Overpass API</a>';
 
 var map = L.map(document.getElementsByClassName('map')[0]).setView([55.58415969422116, 37.385264449999966],9);
 var mapBox = L.tileLayer.provider('MapBox', {id: 'businesstat.liek2okp', accessToken: 'pk.eyJ1IjoiYnVzaW5lc3N0YXQiLCJhIjoiQ1hVdVdxZyJ9.sXqLsSh-1vhh11_BSL-g4Q'}).addTo(map);
+L.control.scale().addTo(map);
+
+/**
+** Set OverPassAPI
+*/
+
+var opl = new L.OverPassLayer({
+  // query: 'node(BBOX)["boundary"="administrative"]["admin_level"="8"]["name" = "городское поселение Сергиев Посад"];out;',
+  query: 'node["amenity"="school"](BBOX);out;',
+});
+
+map.addLayer(opl);
 
 /**
 ** Set GeoJSON
@@ -304,68 +318,68 @@ $(function() {
   */
 
       districts.once('data:loaded', function() {
-        var poly = new L.Polygon(borders.getLayers()[0].getLatLngs());
-        // map.addLayer(poly);
-        var newPoly = new L.Polygon(districts.getLayers()[0].getLatLngs());
-        // var behrmann = 'PROJCS["World_Behrmann",GEOGCS["GCS_WGS_1984",DATUM["WGS_1984",SPHEROID["WGS_1984",6378137,298.257223563]],PRIMEM["Greenwich",0],UNIT["Degree",0.017453292519943295]],PROJECTION["Behrmann"],PARAMETER["False_Easting",0],PARAMETER["False_Northing",0],PARAMETER["Central_Meridian",0],UNIT["Meter",1],AUTHORITY["EPSG","54017"]]';
-        var customProjection = 'PROJCS["NAD83 / Massachusetts Mainland",GEOGCS["NAD83",DATUM["North_American_Datum_1983",SPHEROID["GRS 1980",6378137,298.257222101,AUTHORITY["EPSG","7019"]],AUTHORITY["EPSG","6269"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.01745329251994328,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4269"]],UNIT["metre",1,AUTHORITY["EPSG","9001"]],PROJECTION["Lambert_Conformal_Conic_2SP"],PARAMETER["standard_parallel_1",42.68333333333333],PARAMETER["standard_parallel_2",41.71666666666667],PARAMETER["latitude_of_origin",41],PARAMETER["central_meridian",-71.5],PARAMETER["false_easting",200000],PARAMETER["false_northing",750000],AUTHORITY["EPSG","26986"],AXIS["X",EAST],AXIS["Y",NORTH]]';
-        // var customProjection = '';
-        var customProjection = 'PROJCS["US National Atlas Equal Area",GEOGCS["Unspecified datum based upon the Clarke 1866 Authalic Sphere",DATUM["Not_specified_based_on_Clarke_1866_Authalic_Sphere",SPHEROID["Clarke 1866 Authalic Sphere",6370997,0,AUTHORITY["EPSG","7052"]],AUTHORITY["EPSG","6052"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4052"]],PROJECTION["Lambert_Azimuthal_Equal_Area"],PARAMETER["latitude_of_center",45],PARAMETER["longitude_of_center",-100],PARAMETER["false_easting",0],PARAMETER["false_northing",0],UNIT["metre",1,AUTHORITY["EPSG","9001"]],AXIS["X",EAST],AXIS["Y",NORTH],AUTHORITY["EPSG","2163"]]';
-        var customProjection = 'PROJCS["North_Pole_Lambert_Azimuthal_Equal_Area",GEOGCS["GCS_WGS_1984",DATUM["WGS_1984",SPHEROID["WGS_1984",6378137,298.257223563]],PRIMEM["Greenwich",0],UNIT["Degree",0.017453292519943295]],PROJECTION["Lambert_Azimuthal_Equal_Area"],PARAMETER["False_Easting",0],PARAMETER["False_Northing",0],PARAMETER["Central_Meridian",0],PARAMETER["Latitude_Of_Origin",90],UNIT["Meter",1],AUTHORITY["EPSG","102017"]]';
-        // var customProjection = 'PROJCS["Sphere_Behrmann",GEOGCS["GCS_Sphere",DATUM["Not_specified_based_on_Authalic_Sphere",SPHEROID["Sphere",6371000,0]],PRIMEM["Greenwich",0],UNIT["Degree",0.017453292519943295]],PROJECTION["Behrmann"],PARAMETER["False_Easting",0],PARAMETER["False_Northing",0],PARAMETER["Central_Meridian",0],UNIT["Meter",1],AUTHORITY["EPSG","53017"]]';
-        var wgs84 = 'GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4326"]]';
+        console.log(borders.getLayers().getLatLngs());
+        console.log(districts.getLayers().getLatLngs());
+                    var poly = new L.Polygon(borders.getLayers()[0].getLatLngs());
+            var newPoly = new L.Polygon(districts.getLayers()[0].getLatLngs());
+            var wgs84 = 'GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4326"]]';
+            proj4.defs('EPSG:3410', "+proj=cea +lon_0=0 +lat_ts=30 +x_0=0 +y_0=0 +a=6371228 +b=6371228 +units=m +no_defs");
+            proj4.defs('SR-ORG:6864', "+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +a=6378137 +b=6378137 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs");
+            var customProjection = proj4('SR-ORG:6864');
 
-        var projectedCoords = [];
-        for (var i = 0; i < poly._latlngs.length; i++) {
-          var coordinate = proj4(customProjection, [poly._latlngs[i].lat, poly._latlngs[i].lng]);
-          projectedCoords.push(coordinate);
-        }
-        var zero = proj4(customProjection, [0,0]),
-            polar = proj4(customProjection, [80,80]);
-        console.log(zero, polar);
+            /*
+            ** LatLng shift
+            */
 
-        projectedCoords.push(projectedCoords[0]);
-        var center = poly.getBounds().getCenter();
-        var projectedCenter = proj4(customProjection, [center.lat, center.lng]);
-        var newCenter = newPoly.getBounds().getCenter();
-        var newProjectedCenter = proj4(customProjection, [newCenter.lat, newCenter.lng]);
+            var zero = [0,37.6137272],
+                polar = [84.886737,32.405546],
+                east = [55.753707000000006, 80],
+                west = [55.753707000000006, -4.25];
+                spb = [59.938879,30.315212],
+                sochi = [43.585525, 39.723062];
+
+            var center = poly.getBounds().getCenter();
+            var newCenter = newPoly.getBounds().getCenter();
+
+            var y = newCenter.lat;
+            var x = newCenter.lng;
+            // var y = zero[0];
+            // var x = zero[1];
+            // var y = polar[0];
+            // var x = polar[1];
+            // var y = spb[0];
+            // var x = spb[1];
+            // var y = sochi[0];
+            // var x = sochi[1];
+            // var y = east[0];
+            // var x = east[1];
+            // var y = west[0];
+            // var x = west[1];
+            // var y = Math.random()*90;
+            // var x = 37.6137272;
+            var scaleFactor2 = 1/Math.cos((Math.PI*y)/180);
 
             var offsets = [];
-            for (var i = 0; i < projectedCoords.length; i++)  {
+            for (var i = 0; i < poly._latlngs.length; i++)  {
               var point = [];
-              point.push(projectedCoords[i][0] - projectedCenter[0]);
-              point.push(projectedCoords[i][1] - projectedCenter[1]);
+              point.push(poly._latlngs[i].lat - center.lat);
+              point.push(poly._latlngs[i].lng - center.lng);
+              var scaleFactor1 = 1/Math.cos((Math.PI*poly._latlngs[i].lat)/180);
+              point.push(scaleFactor1);
               offsets.push(point);
             }
 
-            var x = newProjectedCenter[0];
-            var y = newProjectedCenter[1];
-            // var x = zero[0];
-            // var y = zero[1];
-            // var x = polar[0];
-            // var y = polar[1];
-
-            map.panTo(borders.getBounds().getCenter());
-            var newPoints = [];
+            var llArray = [];
             for (var i = 0; i < offsets.length; i++)  {
               var point = [];
-              point.push(x + offsets[i][0]);
-              point.push(y + offsets[i][1]);
-              newPoints.push(point);
-  	        }
-            var llArray = [];
-            for (var i = 0; i < newPoints.length; i++) {
-              var ll = proj4(customProjection).inverse([newPoints[i][0],newPoints[i][1]]);
-              llArray.push(ll);
+              point.push(y + offsets[i][0]);
+              point.push(x + offsets[i][1]*(scaleFactor2/offsets[i][2]));
+              llArray.push(point);
             }
-            shift = L.polygon(llArray, {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2}).addTo(map);
-            map.removeLayer(borders);
-              // console.log(shift.getBounds());
-              map.fitBounds(shift.getBounds());
-            //
-            //
-            //
 
+            var shift = L.polygon(llArray, {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2}).addTo(map);
+            map.removeLayer(borders);
+            map.fitBounds(shift.getBounds());
       });
 
     }  //select
