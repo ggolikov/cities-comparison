@@ -6,6 +6,7 @@
   "dependencies": {
     "browserify": "^13.0.0",
     "csv2json": "^1.1.0",
+    "geojson-project": "^1.0.0",
     "js-search": "^1.2.2",
     "js-worker-search": "^1.0.1",
     "leaflet": "^0.7.7",

@@ -1,8 +1,10 @@
 require('leaflet-ajax');
+// var geojsonProject = require('geojson-project');
 
 /**
-** Set Mapbox
+** Set map & baselayers
 */
+
 var attr_osm = 'Map data &copy; <a href="http://openstreetmap.org/">OpenStreetMap</a> contributors',
 attr_overpass = 'POI via <a href="http://www.overpass-api.de/">Overpass API</a>';
 
@@ -11,15 +13,36 @@ var mapBox = L.tileLayer.provider('MapBox', {id: 'businesstat.liek2okp', accessT
 L.control.scale().addTo(map);
 
 /**
-** Set OverPassAPI
+** get OverPass JSON (xhr)
 */
 
-var opl = new L.OverPassLayer({
-  // query: 'node(BBOX)["boundary"="administrative"]["admin_level"="8"]["name" = "городское поселение Сергиев Посад"];out;',
-  query: 'node["amenity"="school"](BBOX);out;',
-});
-
-map.addLayer(opl);
+// var coords;
+// var xhr = new XMLHttpRequest();
+// xhr.open('GET', 'http://overpass-api.de/api/interpreter?data=[out%3Ajson][timeout%3A25]%3B%28relation[%22boundary%22%3D%22administrative%22][%22name%22%3D%22%D0%9C%D0%BE%D1%81%D0%BA%D0%B2%D0%B0%22]%3B%29%3Bout%20body%3B%3E%3Bout%20skel%20qt%3B%0A', true);
+// xhr.send();
+//
+// xhr.onreadystatechange = function() {
+//     if (this.readyState != 4) return;
+//     // console.log(xhr);
+//     if (xhr.responseText) {
+//      var osm_data = xhr.responseText;
+//   if (osm_data) {
+//
+//     var JSON = osmtogeojson(osm_data);
+//
+//     var array = [];
+//     var data = L.geoJson(JSON, {
+//       onEachFeature: function(feature) {
+//         array.push(feature.geometry.coordinates);
+//       }
+//     }).addTo(map);
+//     array.pop();
+//     coords = array[0][0];
+//     coords.forEach(function(x){x.reverse()});
+//     console.log(array[0]);
+//   }
+// }
+// }
 
 /**
 ** Set GeoJSON
@@ -210,131 +233,28 @@ $(function() {
 
         map.addLayer(districts);
 
-      /*
-      **    move polygon
-      */
-
-      // districts.once('data:loaded', function() {
-      //   var poly = new L.Polygon(borders.getLayers()[0].getLatLngs());
-      //   var newJSON = poly.toGeoJSON();
-      //   console.log(newJSON);
-      //   var center = poly.getBounds().getCenter();
-      //   var points = poly.getLatLngs();
-      //     var offsets = []
-      //     for (var i = 0; i < points.length; i++)  {
-      //       var point = [];
-      //       point.push(points[i].lat - center.lat);
-      //       point.push(points[i].lng - center.lng);
-      //       offsets.push(point);
-      //     }
-      //     offsets.push(point);
-      //
-      //     var lat = districts.getBounds().getCenter().lat;
-      //     var lng = districts.getBounds().getCenter().lng;
-      //     map.panTo(borders.getBounds().getCenter());
-      //     var newpoints = [];
-      //     for (var i = 0; i < offsets.length; i++)  {
-      //       var point = [];
-      //       point.push(lat + offsets[i][0]);
-      //       point.push(lng + offsets[i][1]);
-      //       newpoints.push(point);
-	    //     }
-      //       shift = L.polygon(newpoints, {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2}).addTo(map);
-      //       map.removeLayer(borders);
-      //       console.log(shift.getBounds());
-      //       map.fitBounds(shift.getBounds());
-      // });
-
-      /*
-      **    overlay implementation using D3
-      */
-
-  //   districts.once('data:loaded', function() {
-  //       var poly = new L.Polygon(borders.getLayers()[0].getLatLngs());
-  //       // map.addLayer(poly);
-  //       var newJSON = poly.toGeoJSON();
-  //       console.log(poly);
-  //       console.log(newJSON);
-  //
-  //       var svg = d3.select(map.getPanes().overlayPane).append("svg"),
-  //       g = svg.append("g").attr("class", "leaflet-zoom-hide");
-  //
-  //       d3.json("https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/moscow.geo.json", function(error, collection) {
-  //         if (error) throw error;
-  //         console.log(collection);
-  //         var okrug = collection.features;
-  //         okrug.filter(function(feature){
-  //             return feature.name == 'Центральный административный округ';//query1[query1.length-1];
-  //             // console.log(feature.name);
-  //         });
-  //         console.log(okrug);
-  //         console.log(borders);
-  //         console.log(query1[query1.length-1]);
-  //
-  //         // var width = document.getElementsByClassName('map')[0].width,
-  //         // height = document.getElementsByClassName('map')[0].height;
-  //
-  //         var projection = d3.geo.mercator();
-  //           // .scale((width + 1) / 2 / Math.PI)
-  //           // .translate([width / 2, height / 2])
-  //           // .precision(.1);
-  //
-  //         var transform = d3.geo.transform({point: projectPoint}),
-  //             path = d3.geo.path().projection(projection);
-  //
-  //             var feature = g.selectAll("path")
-  //               .data(collection.features)
-  //           .enter().append("path");
-  //         map.on("viewreset", reset);
-  //         reset();
-  //
-  //         // Reposition the SVG to cover the features.
-  //         function reset() {
-  //           var bounds = path.bounds(collection),
-  //               topLeft = bounds[0],
-  //               bottomRight = bounds[1];
-  //
-  //           svg .attr("width", bottomRight[0] - topLeft[0])
-  //               .attr("height", bottomRight[1] - topLeft[1])
-  //               .style("left", topLeft[0] + "px")
-  //               .style("top", topLeft[1] + "px");
-  //
-  //           g   .attr("transform", "translate(" + -topLeft[0] + "," + -topLeft[1] + ")");
-  //
-  //           feature.attr("d", path);
-  //         }
-  //
-  //         // Use Leaflet to implement a D3 geometric transformation.
-  //         function projectPoint(x, y) {
-  //           var point = map.latLngToLayerPoint(new L.LatLng(y, x));
-  //           this.stream.point(point.x, point.y);
-  //         }
-  //       });
-  // });
-
   /*
   **    reproject
   */
 
       districts.once('data:loaded', function() {
-        console.log(borders.getLayers().getLatLngs());
-        console.log(districts.getLayers().getLatLngs());
-                    var poly = new L.Polygon(borders.getLayers()[0].getLatLngs());
+            // var poly = new L.Polygon(coords);
+            var poly = new L.Polygon(borders.getLayers()[0].getLatLngs());
             var newPoly = new L.Polygon(districts.getLayers()[0].getLatLngs());
-            var wgs84 = 'GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4326"]]';
-            proj4.defs('EPSG:3410', "+proj=cea +lon_0=0 +lat_ts=30 +x_0=0 +y_0=0 +a=6371228 +b=6371228 +units=m +no_defs");
-            proj4.defs('SR-ORG:6864', "+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +a=6378137 +b=6378137 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs");
-            var customProjection = proj4('SR-ORG:6864');
+            // var wgs84 = 'GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4326"]]';
+            // proj4.defs('EPSG:3410', "+proj=cea +lon_0=0 +lat_ts=30 +x_0=0 +y_0=0 +a=6371228 +b=6371228 +units=m +no_defs");
+            // proj4.defs('SR-ORG:6864', "+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +a=6378137 +b=6378137 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs");
+            // var customProjection = proj4('SR-ORG:6864');
 
             /*
             ** LatLng shift
             */
 
-            var zero = [0,37.6137272],
+            var zero  = [0,37.6137272],
                 polar = [84.886737,32.405546],
-                east = [55.753707000000006, 80],
-                west = [55.753707000000006, -4.25];
-                spb = [59.938879,30.315212],
+                east  = [55.753707000000006, 80],
+                west  = [55.753707000000006, -4.25];
+                spb   = [59.938879,30.315212],
                 sochi = [43.585525, 39.723062];
 
             var center = poly.getBounds().getCenter();
@@ -355,7 +275,8 @@ $(function() {
             // var y = west[0];
             // var x = west[1];
             // var y = Math.random()*90;
-            // var x = 37.6137272;
+            // var x = Math.random()*180;
+
             var scaleFactor2 = 1/Math.cos((Math.PI*y)/180);
 
             var offsets = [];
@@ -376,7 +297,7 @@ $(function() {
               llArray.push(point);
             }
 
-            var shift = L.polygon(llArray, {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2}).addTo(map);
+            shift = L.polygon(llArray, {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2}).addTo(map);
             map.removeLayer(borders);
             map.fitBounds(shift.getBounds());
       });
