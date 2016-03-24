@@ -1,5 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 require('leaflet-ajax');
+var geojsonProject = require('geojson-project');
 // var geojsonProject = require('geojson-project');
 
 /**
@@ -52,6 +53,10 @@ L.control.scale().addTo(map);
 */
 
 var borders, districts, shift;
+var firstLatLngs = [];
+var secondLatLngs = [];
+var firstArray = [];
+var firstCenter, secondCenter;
 var query1 = [];
 var query2 = [];
 var randomColor = '#'+Math.floor(Math.random()*16777215).toString(16);
@@ -116,46 +121,23 @@ $(function() {
         }
       });
 
-    //   var distStyle = {
-    //     weight: 1,
-    //     color: "grey",
-    //     fillColor: "white",
-    //     opacity: 1,
-    //     fillOpacity: 0
-    //   };
-    //
-    //   districts = new L.geoJson.ajax("https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/moscow_districts.geo.json", {
-    //     onEachFeature: function(feature, layer) {
-    //       layer.bindPopup(feature.properties.NAME);
-    //       layer.on({
-    //         mouseover: highlightFeature,
-    //         mouseout: resetHighlight,
-    //       });
-    //     },
-    //     style: distStyle,
-    //     filter: function(feature) {
-    //       return feature.properties.NAME_AO + ' административный округ' == query[query.length-1];
-    //     }
-    //   });
-    //
-    //   function highlightFeature(e) {
-    //     var layer = e.target;
-    //     layer.setStyle({
-    //       weight: 1,
-    //       color: "grey",
-    //       fillColor: "yellow",
-    //       fillOpacity: 0.3
-    //     });
-    //   }
-    //
-    // function resetHighlight(e) {
-    //     districts.resetStyle(e.target);
-    // }
+      borders.once('data:loaded', function() {
+            this.eachLayer(function(layer){
+              firstLatLngs = layer.getLatLngs();
+              firstCenter = layer.getBounds().getCenter();
+            });
+            firstLatLngs.forEach(function(arr){
+              for (var i = 0; i < arr.length; i++){
+                arr[i] = [arr[i].lat, arr[i].lng];
+              }
+            });
+            firstCenter = [firstCenter.lat, firstCenter.lng];
+      });
 
     $('#second-city').removeAttr("disabled");
 
-    // map.addLayer(districts);
     map.addLayer(borders);
+
     }
     });
 });
@@ -165,6 +147,7 @@ $(function() {
 */
 
 $(function() {
+
     $('#second-city').autocomplete({
       source: function(request, response) {
         $.ajax({
@@ -205,7 +188,6 @@ $(function() {
 
         districts = new L.geoJson.ajax("https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/moscow_districts.geo.json", {
           onEachFeature: function(feature, layer) {
-            // map.fitBounds(layer.getBounds());
             layer.bindPopup(feature.properties.NAME);
             layer.on({
               mouseover: highlightFeature,
@@ -239,13 +221,18 @@ $(function() {
   */
 
       districts.once('data:loaded', function() {
-            // var poly = new L.Polygon(coords);
-            var poly = new L.Polygon(borders.getLayers()[0].getLatLngs());
-            var newPoly = new L.Polygon(districts.getLayers()[0].getLatLngs());
-            // var wgs84 = 'GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4326"]]';
-            // proj4.defs('EPSG:3410', "+proj=cea +lon_0=0 +lat_ts=30 +x_0=0 +y_0=0 +a=6371228 +b=6371228 +units=m +no_defs");
-            // proj4.defs('SR-ORG:6864', "+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +a=6378137 +b=6378137 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs");
-            // var customProjection = proj4('SR-ORG:6864');
+            this.eachLayer(function(layer){
+              secondCenter = layer.getBounds().getCenter();
+              secondCenter = [secondCenter.lat, secondCenter.lng];
+            });
+
+            var firstCenterPoint = L.marker(firstCenter).addTo(map);
+            var secondCenterPoint = L.marker(secondCenter).addTo(map);
+            var poly = new L.multiPolygon(firstLatLngs)/*.addTo(map)*/;
+
+            var firstLatLngsClone = firstLatLngs.slice();
+            var firstCenterClone = firstCenter.slice();
+            var secondCenterClone = secondCenter.slice();
 
             /*
             ** LatLng shift
@@ -258,11 +245,8 @@ $(function() {
                 spb   = [59.938879,30.315212],
                 sochi = [43.585525, 39.723062];
 
-            var center = poly.getBounds().getCenter();
-            var newCenter = newPoly.getBounds().getCenter();
-
-            var y = newCenter.lat;
-            var x = newCenter.lng;
+            var y = secondCenterClone[0];
+            var x = secondCenterClone[1];
             // var y = zero[0];
             // var x = zero[1];
             // var y = polar[0];
@@ -280,34 +264,140 @@ $(function() {
 
             var scaleFactor2 = 1/Math.cos((Math.PI*y)/180);
 
-            var offsets = [];
-            for (var i = 0; i < poly._latlngs.length; i++)  {
-              var point = [];
-              point.push(poly._latlngs[i].lat - center.lat);
-              point.push(poly._latlngs[i].lng - center.lng);
-              var scaleFactor1 = 1/Math.cos((Math.PI*poly._latlngs[i].lat)/180);
-              point.push(scaleFactor1);
-              offsets.push(point);
+            function shiftCoords(arr) {
+                for (var i = 0; i < arr.length; i++)  {
+                  var scaleFactor1 = 1/Math.cos((Math.PI*arr[i][0])/180);
+                  arr[i][0] = arr[i][0] - firstCenterClone[0] + y;
+                  arr[i][1] = (arr[i][1] - firstCenterClone[1])*(scaleFactor2/scaleFactor1) + x;
+                }
             }
 
-            var llArray = [];
-            for (var i = 0; i < offsets.length; i++)  {
-              var point = [];
-              point.push(y + offsets[i][0]);
-              point.push(x + offsets[i][1]*(scaleFactor2/offsets[i][2]));
-              llArray.push(point);
-            }
+            console.log(firstLatLngsClone[0][0]);
+            console.log(firstLatLngs[0][0]);
+            firstLatLngsClone.map(shiftCoords);
+            console.log(firstLatLngs[0][0]);
+            console.log(firstLatLngsClone[0][0]);
 
-            shift = L.polygon(llArray, {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2}).addTo(map);
+            shift = new L.Polygon(firstLatLngsClone, {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2}).addTo(map);
             map.removeLayer(borders);
             map.fitBounds(shift.getBounds());
+
       });
 
     }  //select
   }); //autocomplete
 }); //$
 
-},{"leaflet-ajax":4}],2:[function(require,module,exports){
+},{"geojson-project":2,"leaflet-ajax":5}],2:[function(require,module,exports){
+
+/**
+ * @param  {Object}     data GeoJSON
+ * @param  {Function}   project
+ * @param  {*=}         context
+ * @return {Object}
+ */
+module.exports = function(data, project, context) {
+  data = JSON.parse(JSON.stringify(data));
+  if (data.type === 'FeatureCollection') {
+    // That's a huge hack to get things working with both ArcGIS server
+    // and GeoServer. Geoserver provides crs reference in GeoJSON, ArcGIS —
+    // doesn't.
+    //if (data.crs) delete data.crs;
+    for (var i = data.features.length - 1; i >= 0; i--) {
+      data.features[i] = projectFeature(data.features[i], project, context);
+    }
+  } else {
+    data = projectFeature(data, project, context);
+  }
+  return data;
+};
+
+module.exports.projectFeature  = projectFeature;
+module.exports.projectGeometry = projectGeometry;
+
+
+/**
+ * @param  {Object}     data GeoJSON
+ * @param  {Function}   project
+ * @param  {*=}         context
+ * @return {Object}
+ */
+function projectFeature(feature, project, context) {
+  if (feature.type === 'GeometryCollection') {
+    for (var i = 0, len = feature.geometries.length; i < len; i++) {
+      feature.geometries[i] =
+        projectGeometry(feature.geometries[i], project, context);
+    }
+  } else {
+    feature.geometry = projectGeometry(feature.geometry, project, context);
+  }
+  return feature;
+}
+
+
+/**
+ * @param  {Object}     data GeoJSON
+ * @param  {Function}   project
+ * @param  {*=}         context
+ * @return {Object}
+ */
+function projectGeometry(geometry, project, context) {
+  var coords = geometry.coordinates;
+  switch (geometry.type) {
+    case 'Point':
+      geometry.coordinates = project.call(context, coords);
+      break;
+
+    case 'MultiPoint':
+    case 'LineString':
+      for (var i = 0, len = coords.length; i < len; i++) {
+        coords[i] = project.call(context, coords[i]);
+      }
+      geometry.coordinates = coords;
+      break;
+
+    case 'Polygon':
+      geometry.coordinates = projectCoords(coords, 1, project, context);
+      break;
+
+    case 'MultiLineString':
+      geometry.coordinates = projectCoords(coords, 1, project, context);
+      break;
+
+    case 'MultiPolygon':
+      geometry.coordinates = projectCoords(coords, 2, project, context);
+      break;
+
+    default:
+      break;
+  }
+  return geometry;
+}
+
+
+/**
+ * @param  {*}         coords Coords arrays
+ * @param  {Number}    levelsDeep
+ * @param  {Function}  project
+ * @param  {*=}         context
+ * @return {*}
+ */
+function projectCoords(coords, levelsDeep, project, context) {
+  var coord, i, len;
+  var result = [];
+
+  for (i = 0, len = coords.length; i < len; i++) {
+    coord = levelsDeep ?
+      projectCoords(coords[i], levelsDeep - 1, project, context) :
+      project.call(context, coords[i]);
+
+    result.push(coord);
+  }
+
+  return result;
+}
+
+},{}],3:[function(require,module,exports){
 (function (global){
 'use strict';
 var Mutation = global.MutationObserver || global.WebKitMutationObserver;
@@ -380,7 +470,7 @@ function immediate(task) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 (function (global){
 'use strict';
 var jsonp = require('./jsonp');
@@ -430,7 +520,7 @@ module.exports = function (url, options) {
 };
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./jsonp":5,"lie":7}],4:[function(require,module,exports){
+},{"./jsonp":6,"lie":8}],5:[function(require,module,exports){
 (function (global){
 'use strict';
 var L = global.L || require('leaflet');
@@ -567,7 +657,7 @@ L.geoJson.ajax = function (geojson, options) {
 };
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./ajax":3,"./jsonp":5,"leaflet":6,"lie":7}],5:[function(require,module,exports){
+},{"./ajax":4,"./jsonp":6,"leaflet":7,"lie":8}],6:[function(require,module,exports){
 (function (global){
 'use strict';
 var L = global.L || require('leaflet');
@@ -621,7 +711,7 @@ module.exports = function (url, options) {
 };
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"leaflet":6,"lie":7}],6:[function(require,module,exports){
+},{"leaflet":7,"lie":8}],7:[function(require,module,exports){
 /*
  Leaflet, a JavaScript library for mobile-friendly interactive maps. http://leafletjs.com
  (c) 2010-2013, Vladimir Agafonkin
@@ -9790,7 +9880,7 @@ L.Map.include({
 
 
 }(window, document));
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 'use strict';
 var immediate = require('immediate');
 
@@ -10045,4 +10135,4 @@ function race(iterable) {
   }
 }
 
-},{"immediate":2}]},{},[1]);
+},{"immediate":3}]},{},[1]);

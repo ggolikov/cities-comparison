@@ -1,4 +1,5 @@
 require('leaflet-ajax');
+var geojsonProject = require('geojson-project');
 // var geojsonProject = require('geojson-project');
 
 /**
@@ -51,6 +52,10 @@ L.control.scale().addTo(map);
 */
 
 var borders, districts, shift;
+var firstLatLngs = [];
+var secondLatLngs = [];
+var firstArray = [];
+var firstCenter, secondCenter;
 var query1 = [];
 var query2 = [];
 var randomColor = '#'+Math.floor(Math.random()*16777215).toString(16);
@@ -115,46 +120,23 @@ $(function() {
         }
       });
 
-    //   var distStyle = {
-    //     weight: 1,
-    //     color: "grey",
-    //     fillColor: "white",
-    //     opacity: 1,
-    //     fillOpacity: 0
-    //   };
-    //
-    //   districts = new L.geoJson.ajax("https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/moscow_districts.geo.json", {
-    //     onEachFeature: function(feature, layer) {
-    //       layer.bindPopup(feature.properties.NAME);
-    //       layer.on({
-    //         mouseover: highlightFeature,
-    //         mouseout: resetHighlight,
-    //       });
-    //     },
-    //     style: distStyle,
-    //     filter: function(feature) {
-    //       return feature.properties.NAME_AO + ' административный округ' == query[query.length-1];
-    //     }
-    //   });
-    //
-    //   function highlightFeature(e) {
-    //     var layer = e.target;
-    //     layer.setStyle({
-    //       weight: 1,
-    //       color: "grey",
-    //       fillColor: "yellow",
-    //       fillOpacity: 0.3
-    //     });
-    //   }
-    //
-    // function resetHighlight(e) {
-    //     districts.resetStyle(e.target);
-    // }
+      borders.once('data:loaded', function() {
+            this.eachLayer(function(layer){
+              firstLatLngs = layer.getLatLngs();
+              firstCenter = layer.getBounds().getCenter();
+            });
+            firstLatLngs.forEach(function(arr){
+              for (var i = 0; i < arr.length; i++){
+                arr[i] = [arr[i].lat, arr[i].lng];
+              }
+            });
+            firstCenter = [firstCenter.lat, firstCenter.lng];
+      });
 
     $('#second-city').removeAttr("disabled");
 
-    // map.addLayer(districts);
     map.addLayer(borders);
+
     }
     });
 });
@@ -164,6 +146,7 @@ $(function() {
 */
 
 $(function() {
+
     $('#second-city').autocomplete({
       source: function(request, response) {
         $.ajax({
@@ -204,7 +187,6 @@ $(function() {
 
         districts = new L.geoJson.ajax("https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/moscow_districts.geo.json", {
           onEachFeature: function(feature, layer) {
-            // map.fitBounds(layer.getBounds());
             layer.bindPopup(feature.properties.NAME);
             layer.on({
               mouseover: highlightFeature,
@@ -238,13 +220,18 @@ $(function() {
   */
 
       districts.once('data:loaded', function() {
-            // var poly = new L.Polygon(coords);
-            var poly = new L.Polygon(borders.getLayers()[0].getLatLngs());
-            var newPoly = new L.Polygon(districts.getLayers()[0].getLatLngs());
-            // var wgs84 = 'GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4326"]]';
-            // proj4.defs('EPSG:3410', "+proj=cea +lon_0=0 +lat_ts=30 +x_0=0 +y_0=0 +a=6371228 +b=6371228 +units=m +no_defs");
-            // proj4.defs('SR-ORG:6864', "+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +a=6378137 +b=6378137 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs");
-            // var customProjection = proj4('SR-ORG:6864');
+            this.eachLayer(function(layer){
+              secondCenter = layer.getBounds().getCenter();
+              secondCenter = [secondCenter.lat, secondCenter.lng];
+            });
+
+            var firstCenterPoint = L.marker(firstCenter).addTo(map);
+            var secondCenterPoint = L.marker(secondCenter).addTo(map);
+            var poly = new L.multiPolygon(firstLatLngs)/*.addTo(map)*/;
+
+            var firstLatLngsClone = firstLatLngs.slice();
+            var firstCenterClone = firstCenter.slice();
+            var secondCenterClone = secondCenter.slice();
 
             /*
             ** LatLng shift
@@ -257,11 +244,8 @@ $(function() {
                 spb   = [59.938879,30.315212],
                 sochi = [43.585525, 39.723062];
 
-            var center = poly.getBounds().getCenter();
-            var newCenter = newPoly.getBounds().getCenter();
-
-            var y = newCenter.lat;
-            var x = newCenter.lng;
+            var y = secondCenterClone[0];
+            var x = secondCenterClone[1];
             // var y = zero[0];
             // var x = zero[1];
             // var y = polar[0];
@@ -279,27 +263,24 @@ $(function() {
 
             var scaleFactor2 = 1/Math.cos((Math.PI*y)/180);
 
-            var offsets = [];
-            for (var i = 0; i < poly._latlngs.length; i++)  {
-              var point = [];
-              point.push(poly._latlngs[i].lat - center.lat);
-              point.push(poly._latlngs[i].lng - center.lng);
-              var scaleFactor1 = 1/Math.cos((Math.PI*poly._latlngs[i].lat)/180);
-              point.push(scaleFactor1);
-              offsets.push(point);
+            function shiftCoords(arr) {
+                for (var i = 0; i < arr.length; i++)  {
+                  var scaleFactor1 = 1/Math.cos((Math.PI*arr[i][0])/180);
+                  arr[i][0] = arr[i][0] - firstCenterClone[0] + y;
+                  arr[i][1] = (arr[i][1] - firstCenterClone[1])*(scaleFactor2/scaleFactor1) + x;
+                }
             }
 
-            var llArray = [];
-            for (var i = 0; i < offsets.length; i++)  {
-              var point = [];
-              point.push(y + offsets[i][0]);
-              point.push(x + offsets[i][1]*(scaleFactor2/offsets[i][2]));
-              llArray.push(point);
-            }
+            console.log(firstLatLngsClone[0][0]);
+            console.log(firstLatLngs[0][0]);
+            firstLatLngsClone.map(shiftCoords);
+            console.log(firstLatLngs[0][0]);
+            console.log(firstLatLngsClone[0][0]);
 
-            shift = L.polygon(llArray, {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2}).addTo(map);
+            shift = new L.Polygon(firstLatLngsClone, {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2}).addTo(map);
             map.removeLayer(borders);
             map.fitBounds(shift.getBounds());
+
       });
 
     }  //select
