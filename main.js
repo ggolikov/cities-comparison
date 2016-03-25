@@ -1,12 +1,8 @@
 require('leaflet-ajax');
-// var geojsonProject = require('geojson-project');
 
 /**
 ** Set map & baselayers
 */
-var attr_osm = 'Map data &copy; <a href="http://openstreetmap.org/">OpenStreetMap</a> contributors',
-attr_overpass = 'POI via <a href="http://www.overpass-api.de/">Overpass API</a>';
-
 var attr_osm = 'Map data &copy; <a href="http://openstreetmap.org/">OpenStreetMap</a> contributors',
 attr_overpass = 'POI via <a href="http://www.overpass-api.de/">Overpass API</a>';
 
@@ -15,6 +11,7 @@ var mapBox = L.tileLayer.provider('MapBox', {id: 'businesstat.liek2okp', accessT
 L.control.scale().addTo(map);
 
 /**
+<<<<<<< HEAD
 <<<<<<< HEAD
 ** Set OverPassAPI
 */
@@ -59,15 +56,29 @@ map.addLayer(opl);
 >>>>>>> refs/remotes/origin/master
 
 /**
+=======
+>>>>>>> refs/remotes/origin/master
 ** Set GeoJSON
 ** &
 ** search-box
 */
 
-var borders, districts, shift;
+var firstFeature, secondFeature, shift;
+var firstLatLngs = [];
+var secondLatLngs = [];
+var firstCenter, secondCenter;
+var firstLatLngsClone, firstCenterClone;
 var query1 = [];
 var query2 = [];
 var randomColor = '#'+Math.floor(Math.random()*16777215).toString(16);
+
+var style = {
+  weight: 2,
+  color: "grey",
+  fillColor: randomColor,
+  opacity: 1,
+  fillOpacity: 0.2
+};
 
 /*
 **  configure first input
@@ -77,7 +88,7 @@ $(function() {
   $('#first-city').autocomplete({
     source: function(request, response) {
       $.ajax({
-        url: "https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/moscow.geo.json",
+        url: "https://raw.githubusercontent.com/ggolikov/cities-comparison/master/example/admin_level_5.geo.json",
         dataType: "json",
         data: request,
         success: function(data) {
@@ -95,80 +106,74 @@ $(function() {
     minLength: 1,
     select: function(event, ui) {
       query1.length = 0;
-      if (borders) {
-        map.removeLayer(borders);
+      if (firstFeature) {
+        map.removeLayer(firstFeature);
       }
       if (shift) {
         map.removeLayer(shift);
       }
       query1.push(ui.item.value);
 
-      borders = new L.geoJson.ajax("https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/moscow.geo.json", {
+      firstFeature = new L.geoJson.ajax("https://raw.githubusercontent.com/ggolikov/cities-comparison/master/example/admin_level_5.geo.json", {
         onEachFeature: function(feature, layer) {
           layer.bindPopup(feature.properties.name);
           map.fitBounds(layer.getBounds());
         },
-        style: function(feature) {
-          switch (feature.properties.name) {
-            case 'Зеленоградский административный округ': return {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2};
-            case 'Восточный административный округ':   return {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2};
-            case 'Юго-Восточный административный округ':   return {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2};
-            case 'Южный административный округ':   return {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2};
-            case 'Юго-Западный административный округ':   return {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2};
-            case 'Западный административный округ':   return {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2};
-            case 'Северо-Западный административный округ':   return {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2};
-            case 'Северный административный округ':   return {weight: 3, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2};
-            case 'Северо-Восточный административный округ':   return {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2};
-            case 'Центральный административный округ':   return {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2};
-            case 'Троицкий административный округ':   return {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2};
-            case 'Новомосковский административный округ':   return {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2};
-          }
-        },
+        style: style,
+        // style: function(feature) {
+        //   switch (feature.properties.name) {
+        //     case 'Зеленоградский административный округ': return {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2};
+        //     case 'Восточный административный округ':   return {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2};
+        //     case 'Юго-Восточный административный округ':   return {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2};
+        //     case 'Южный административный округ':   return {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2};
+        //     case 'Юго-Западный административный округ':   return {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2};
+        //     case 'Западный административный округ':   return {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2};
+        //     case 'Северо-Западный административный округ':   return {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2};
+        //     case 'Северный административный округ':   return {weight: 3, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2};
+        //     case 'Северо-Восточный административный округ':   return {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2};
+        //     case 'Центральный административный округ':   return {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2};
+        //     case 'Троицкий административный округ':   return {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2};
+        //     case 'Новомосковский административный округ':   return {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2};
+        //   }
+        // },
         filter: function(feature) {
           return feature.name == query1[query1.length-1];
         }
       });
 
-    //   var distStyle = {
-    //     weight: 1,
-    //     color: "grey",
-    //     fillColor: "white",
-    //     opacity: 1,
-    //     fillOpacity: 0
-    //   };
-    //
-    //   districts = new L.geoJson.ajax("https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/moscow_districts.geo.json", {
-    //     onEachFeature: function(feature, layer) {
-    //       layer.bindPopup(feature.properties.NAME);
-    //       layer.on({
-    //         mouseover: highlightFeature,
-    //         mouseout: resetHighlight,
-    //       });
-    //     },
-    //     style: distStyle,
-    //     filter: function(feature) {
-    //       return feature.properties.NAME_AO + ' административный округ' == query[query.length-1];
-    //     }
-    //   });
-    //
-    //   function highlightFeature(e) {
-    //     var layer = e.target;
-    //     layer.setStyle({
-    //       weight: 1,
-    //       color: "grey",
-    //       fillColor: "yellow",
-    //       fillOpacity: 0.3
-    //     });
-    //   }
-    //
-    // function resetHighlight(e) {
-    //     districts.resetStyle(e.target);
-    // }
+      firstFeature.once('data:loaded', function() {
+            this.eachLayer(function(layer){
+              firstLatLngs = layer.getLatLngs();
+              firstCenter = layer.getBounds().getCenter();
+            });
+
+            // convert LatLng objects to coordinate arrays
+
+            firstLatLngs.forEach(function(arr){
+              for (var i = 0; i < arr.length; i++){
+                arr[i] = [arr[i].lat, arr[i].lng];
+              }
+            });
+
+            firstCenter = [firstCenter.lat, firstCenter.lng];
+
+            // clone converted arrays to the new array to prevent changes
+
+            firstLatLngsClone = [];
+            for (var j = 0; j < firstLatLngs.length; j++) {
+              firstLatLngsClone[j] = new Array();
+              for(var l = 0; l < firstLatLngs[j].length; l++){
+                firstLatLngsClone[j].push(firstLatLngs[j][l]);
+              }
+            };
+
+            firstCenterClone = firstCenter.slice();
+      });
 
     $('#second-city').removeAttr("disabled");
 
-    // map.addLayer(districts);
-    map.addLayer(borders);
+    map.addLayer(firstFeature);
+
     }
     });
 });
@@ -178,18 +183,19 @@ $(function() {
 */
 
 $(function() {
+
     $('#second-city').autocomplete({
       source: function(request, response) {
         $.ajax({
-          url: "https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/moscow_districts.geo.json",
+          url: "https://raw.githubusercontent.com/ggolikov/cities-comparison/master/example/admin_level_9.geo.json",
           dataType: "json",
           data: request,
           success: function(data) {
             response($.map(data.features, function(item) {
-               if (item.properties.NAME.toLowerCase().indexOf(request.term.toLowerCase()) > -1) {
+               if (item.properties.name.toLowerCase().indexOf(request.term.toLowerCase()) > -1) {
                 return {
-                  label: item.properties.NAME,
-                  value: item.properties.NAME
+                  label: item.properties.name,
+                  value: item.properties.name
                 };
               }
             }))
@@ -200,8 +206,8 @@ $(function() {
 
       select: function(event, ui) {
         query2.length = 0;
-        if (districts) {
-          map.removeLayer(districts);
+        if (secondFeature) {
+          map.removeLayer(secondFeature);
         }
         if (shift) {
           map.removeLayer(shift);
@@ -216,10 +222,9 @@ $(function() {
           fillOpacity: 0.7
         };
 
-        districts = new L.geoJson.ajax("https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/moscow_districts.geo.json", {
+        secondFeature = new L.geoJson.ajax("https://raw.githubusercontent.com/ggolikov/cities-comparison/master/example/admin_level_9.geo.json", {
           onEachFeature: function(feature, layer) {
-            // map.fitBounds(layer.getBounds());
-            layer.bindPopup(feature.properties.NAME);
+            layer.bindPopup(feature.properties.name);
             layer.on({
               mouseover: highlightFeature,
               mouseout: resetHighlight,
@@ -227,7 +232,7 @@ $(function() {
           },
           style: distStyle,
           filter: function(feature) {
-            return feature.properties.NAME == query2[query2.length-1];
+            return feature.properties.name == query2[query2.length-1];
           }
         });
 
@@ -242,15 +247,16 @@ $(function() {
         }
 
         function resetHighlight(e) {
-          districts.resetStyle(e.target);
+          secondFeature.resetStyle(e.target);
         }
 
-        map.addLayer(districts);
+        map.addLayer(secondFeature);
 
   /*
   **    reproject
   */
 
+<<<<<<< HEAD
       districts.once('data:loaded', function() {
 <<<<<<< HEAD
         console.log(borders.getLayers().getLatLngs());
@@ -274,6 +280,13 @@ $(function() {
             /*
             ** LatLng shift
             */
+=======
+      secondFeature.once('data:loaded', function() {
+            this.eachLayer(function(layer){
+              secondCenter = layer.getBounds().getCenter();
+              secondCenter = [secondCenter.lat, secondCenter.lng];
+            });
+>>>>>>> refs/remotes/origin/master
 
 <<<<<<< HEAD
             var zero = [0,37.6137272],
@@ -290,11 +303,8 @@ $(function() {
 >>>>>>> refs/remotes/origin/master
                 sochi = [43.585525, 39.723062];
 
-            var center = poly.getBounds().getCenter();
-            var newCenter = newPoly.getBounds().getCenter();
-
-            var y = newCenter.lat;
-            var x = newCenter.lng;
+            var y = secondCenter[0];
+            var x = secondCenter[1];
             // var y = zero[0];
             // var x = zero[1];
             // var y = polar[0];
@@ -313,34 +323,81 @@ $(function() {
 =======
             // var x = Math.random()*180;
 
+<<<<<<< HEAD
+>>>>>>> refs/remotes/origin/master
+=======
+            /*
+            ** function LatLng shift
+            */
+
 >>>>>>> refs/remotes/origin/master
             var scaleFactor2 = 1/Math.cos((Math.PI*y)/180);
 
-            var offsets = [];
-            for (var i = 0; i < poly._latlngs.length; i++)  {
-              var point = [];
-              point.push(poly._latlngs[i].lat - center.lat);
-              point.push(poly._latlngs[i].lng - center.lng);
-              var scaleFactor1 = 1/Math.cos((Math.PI*poly._latlngs[i].lat)/180);
-              point.push(scaleFactor1);
-              offsets.push(point);
+            function shiftCoords(arr) {
+
+              // for (var i = 0; i < arr.length; i++)  {
+              //   var scaleFactor1 = 1/Math.cos((Math.PI*arr[i][0])/180);
+              //   arr[i][0] = arr[i][0] - firstCenterClone[0] + y;
+              //   arr[i][1] = (arr[i][1] - firstCenterClone[1])*(scaleFactor2/scaleFactor1) + x;
+              //
+              //   // arr[i][0] = arr[i][0]/2;
+              //   // arr[i][1] = arr[i][1]/2;
+              //   // arr[i] = [0,2];
+              //
+              // }
+
+                var offsets = [];
+                for (var i = 0; i < arr.length; i++)  {
+                  var point = [];
+                  var scaleFactor1 = 1/Math.cos((Math.PI*arr[i][0])/180);
+                  point.push(arr[i][0] - firstCenter[0]);
+                  point.push(arr[i][1] - firstCenter[1]);
+                  point.push(scaleFactor1);
+                  offsets.push(point);
+                }
+
+                var llArray = [];
+                for (var k = 0; k < offsets.length; k++)  {
+                  var point = [];
+                  point.push(y + offsets[k][0]);
+                  point.push(x + offsets[k][1]*(scaleFactor2/offsets[k][2]));
+                  llArray.push(point);
+                }
+
+                for(var l = 0; l < arr.length; l++) {
+                  arr[l] = llArray[l];
+                }
             }
 
-            var llArray = [];
-            for (var i = 0; i < offsets.length; i++)  {
-              var point = [];
-              point.push(y + offsets[i][0]);
-              point.push(x + offsets[i][1]*(scaleFactor2/offsets[i][2]));
-              llArray.push(point);
-            }
+            // shifting cloned array
 
+            firstLatLngsClone.forEach(shiftCoords);
+
+            // drawing shifted polygon
+
+            shift = new L.multiPolygon(firstLatLngsClone, style).addTo(map);
+
+<<<<<<< HEAD
 <<<<<<< HEAD
             var shift = L.polygon(llArray, {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2}).addTo(map);
 =======
             shift = L.polygon(llArray, {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2}).addTo(map);
 >>>>>>> refs/remotes/origin/master
             map.removeLayer(borders);
+=======
+            // reset coordinates array clone to default to avoid shift
+
+            for (var j = 0; j < firstLatLngs.length; j++) {
+              firstLatLngsClone[j] = new Array();
+              for(var l = 0; l < firstLatLngs[j].length; l++){
+                firstLatLngsClone[j].push(firstLatLngs[j][l]);
+              }
+            };
+
+            map.removeLayer(firstFeature);
+>>>>>>> refs/remotes/origin/master
             map.fitBounds(shift.getBounds());
+
       });
 
     }  //select
