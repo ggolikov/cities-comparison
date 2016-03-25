@@ -1,6 +1,4 @@
 require('leaflet-ajax');
-var geojsonProject = require('geojson-project');
-// var geojsonProject = require('geojson-project');
 
 /**
 ** Set map & baselayers
@@ -54,8 +52,8 @@ L.control.scale().addTo(map);
 var borders, districts, shift;
 var firstLatLngs = [];
 var secondLatLngs = [];
-var firstArray = [];
 var firstCenter, secondCenter;
+var firstLatLngsClone, firstCenterClone;
 var query1 = [];
 var query2 = [];
 var randomColor = '#'+Math.floor(Math.random()*16777215).toString(16);
@@ -125,12 +123,28 @@ $(function() {
               firstLatLngs = layer.getLatLngs();
               firstCenter = layer.getBounds().getCenter();
             });
+
+            // convert LatLng objects to coordinate arrays
+
             firstLatLngs.forEach(function(arr){
               for (var i = 0; i < arr.length; i++){
                 arr[i] = [arr[i].lat, arr[i].lng];
               }
             });
+
             firstCenter = [firstCenter.lat, firstCenter.lng];
+
+            // clone converted arrays to the new array to prevent changes
+
+            firstLatLngsClone = [];
+            for (var j = 0; j < firstLatLngs.length; j++) {
+              firstLatLngsClone[j] = new Array();
+              for(var l = 0; l < firstLatLngs[j].length; l++){
+                firstLatLngsClone[j].push(firstLatLngs[j][l]);
+              }
+            };
+
+            firstCenterClone = firstCenter.slice();
       });
 
     $('#second-city').removeAttr("disabled");
@@ -225,18 +239,6 @@ $(function() {
               secondCenter = [secondCenter.lat, secondCenter.lng];
             });
 
-            var firstCenterPoint = L.marker(firstCenter).addTo(map);
-            var secondCenterPoint = L.marker(secondCenter).addTo(map);
-            var poly = new L.multiPolygon(firstLatLngs)/*.addTo(map)*/;
-
-            var firstLatLngsClone = firstLatLngs.slice();
-            var firstCenterClone = firstCenter.slice();
-            var secondCenterClone = secondCenter.slice();
-
-            /*
-            ** LatLng shift
-            */
-
             var zero  = [0,37.6137272],
                 polar = [84.886737,32.405546],
                 east  = [55.753707000000006, 80],
@@ -244,8 +246,8 @@ $(function() {
                 spb   = [59.938879,30.315212],
                 sochi = [43.585525, 39.723062];
 
-            var y = secondCenterClone[0];
-            var x = secondCenterClone[1];
+            var y = secondCenter[0];
+            var x = secondCenter[1];
             // var y = zero[0];
             // var x = zero[1];
             // var y = polar[0];
@@ -261,23 +263,65 @@ $(function() {
             // var y = Math.random()*90;
             // var x = Math.random()*180;
 
+            /*
+            ** function LatLng shift
+            */
+
             var scaleFactor2 = 1/Math.cos((Math.PI*y)/180);
 
             function shiftCoords(arr) {
+
+              // for (var i = 0; i < arr.length; i++)  {
+              //   var scaleFactor1 = 1/Math.cos((Math.PI*arr[i][0])/180);
+              //   arr[i][0] = arr[i][0] - firstCenterClone[0] + y;
+              //   arr[i][1] = (arr[i][1] - firstCenterClone[1])*(scaleFactor2/scaleFactor1) + x;
+              //
+              //   // arr[i][0] = arr[i][0]/2;
+              //   // arr[i][1] = arr[i][1]/2;
+              //   // arr[i] = [0,2];
+              //
+              // }
+
+                var offsets = [];
                 for (var i = 0; i < arr.length; i++)  {
+                  var point = [];
                   var scaleFactor1 = 1/Math.cos((Math.PI*arr[i][0])/180);
-                  arr[i][0] = arr[i][0] - firstCenterClone[0] + y;
-                  arr[i][1] = (arr[i][1] - firstCenterClone[1])*(scaleFactor2/scaleFactor1) + x;
+                  point.push(arr[i][0] - firstCenter[0]);
+                  point.push(arr[i][1] - firstCenter[1]);
+                  point.push(scaleFactor1);
+                  offsets.push(point);
+                }
+
+                var llArray = [];
+                for (var k = 0; k < offsets.length; k++)  {
+                  var point = [];
+                  point.push(y + offsets[k][0]);
+                  point.push(x + offsets[k][1]*(scaleFactor2/offsets[k][2]));
+                  llArray.push(point);
+                }
+
+                for(var l = 0; l < arr.length; l++) {
+                  arr[l] = llArray[l];
                 }
             }
 
-            console.log(firstLatLngsClone[0][0]);
-            console.log(firstLatLngs[0][0]);
-            firstLatLngsClone.map(shiftCoords);
-            console.log(firstLatLngs[0][0]);
-            console.log(firstLatLngsClone[0][0]);
+            // shifting cloned array
 
-            shift = new L.Polygon(firstLatLngsClone, {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2}).addTo(map);
+            firstLatLngsClone.forEach(shiftCoords);
+
+            // drawing shifted polygon
+
+            shift = new L.multiPolygon(firstLatLngsClone, {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2}).addTo(map);
+
+            // reset coordinates array clone to default to avoid shift
+
+            for (var j = 0; j < firstLatLngs.length; j++) {
+              firstLatLngsClone[j] = new Array();
+              for(var l = 0; l < firstLatLngs[j].length; l++){
+                firstLatLngsClone[j].push(firstLatLngs[j][l]);
+              }
+            };
+
             map.removeLayer(borders);
             map.fitBounds(shift.getBounds());
 
