@@ -73,6 +73,7 @@ $(function() {
           map.fitBounds(layer.getBounds());
         },
         style: style,
+        
         // style: function(feature) {
         //   switch (feature.properties.name) {
         //     case 'Зеленоградский административный округ': return {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2};
