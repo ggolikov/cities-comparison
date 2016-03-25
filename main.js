@@ -72,7 +72,7 @@ $(function() {
           map.fitBounds(layer.getBounds());
         },
         style: style,
-        
+
         // style: function(feature) {
         //   switch (feature.properties.name) {
         //     case 'Зеленоградский административный округ': return {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2};
@@ -140,7 +140,7 @@ $(function() {
     $('#second-city').autocomplete({
       source: function(request, response) {
         $.ajax({
-          url: "https://raw.githubusercontent.com/ggolikov/cities-comparison/master/example/admin_level_9.geo.json",
+          url: "https://raw.githubusercontent.com/ggolikov/cities-comparison/master/example/admin_level_5.geo.json",
           dataType: "json",
           data: request,
           success: function(data) {
@@ -175,7 +175,7 @@ $(function() {
           fillOpacity: 0.7
         };
 
-        secondFeature = new L.geoJson.ajax("https://raw.githubusercontent.com/ggolikov/cities-comparison/master/example/admin_level_9.geo.json", {
+        secondFeature = new L.geoJson.ajax("https://raw.githubusercontent.com/ggolikov/cities-comparison/master/example/admin_level_5.geo.json", {
           onEachFeature: function(feature, layer) {
             layer.bindPopup(feature.properties.name);
             layer.on({
