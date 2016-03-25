@@ -1,1 +1,0 @@
-console.error("Error: Parsing file C:\\Users\\golikov\\Documents\\GitHub\\cities-comparison\\main.js: Unexpected token (25:0)");
