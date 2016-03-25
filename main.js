@@ -4,44 +4,9 @@ require('leaflet-ajax');
 ** Set map & baselayers
 */
 
-var attr_osm = 'Map data &copy; <a href="http://openstreetmap.org/">OpenStreetMap</a> contributors',
-attr_overpass = 'POI via <a href="http://www.overpass-api.de/">Overpass API</a>';
-
 var map = L.map(document.getElementsByClassName('map')[0]).setView([55.58415969422116, 37.385264449999966],9);
 var mapBox = L.tileLayer.provider('MapBox', {id: 'businesstat.liek2okp', accessToken: 'pk.eyJ1IjoiYnVzaW5lc3N0YXQiLCJhIjoiQ1hVdVdxZyJ9.sXqLsSh-1vhh11_BSL-g4Q'}).addTo(map);
 L.control.scale().addTo(map);
-
-/**
-** get OverPass JSON (xhr)
-*/
-
-// var coords;
-// var xhr = new XMLHttpRequest();
-// xhr.open('GET', 'http://overpass-api.de/api/interpreter?data=[out%3Ajson][timeout%3A25]%3B%28relation[%22boundary%22%3D%22administrative%22][%22name%22%3D%22%D0%9C%D0%BE%D1%81%D0%BA%D0%B2%D0%B0%22]%3B%29%3Bout%20body%3B%3E%3Bout%20skel%20qt%3B%0A', true);
-// xhr.send();
-//
-// xhr.onreadystatechange = function() {
-//     if (this.readyState != 4) return;
-//     // console.log(xhr);
-//     if (xhr.responseText) {
-//      var osm_data = xhr.responseText;
-//   if (osm_data) {
-//
-//     var JSON = osmtogeojson(osm_data);
-//
-//     var array = [];
-//     var data = L.geoJson(JSON, {
-//       onEachFeature: function(feature) {
-//         array.push(feature.geometry.coordinates);
-//       }
-//     }).addTo(map);
-//     array.pop();
-//     coords = array[0][0];
-//     coords.forEach(function(x){x.reverse()});
-//     console.log(array[0]);
-//   }
-// }
-// }
 
 /**
 ** Set GeoJSON
@@ -49,7 +14,7 @@ L.control.scale().addTo(map);
 ** search-box
 */
 
-var borders, districts, shift;
+var firstFeature, secondFeature, shift;
 var firstLatLngs = [];
 var secondLatLngs = [];
 var firstCenter, secondCenter;
@@ -66,7 +31,7 @@ $(function() {
   $('#first-city').autocomplete({
     source: function(request, response) {
       $.ajax({
-        url: "https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/moscow.geo.json",
+        url: "https://s3.eu-central-1.amazonaws.com/osmborders/Russia/admin_level_5.geo.json",
         dataType: "json",
         data: request,
         success: function(data) {
@@ -84,15 +49,15 @@ $(function() {
     minLength: 1,
     select: function(event, ui) {
       query1.length = 0;
-      if (borders) {
-        map.removeLayer(borders);
+      if (firstFeature) {
+        map.removeLayer(firstFeature);
       }
       if (shift) {
         map.removeLayer(shift);
       }
       query1.push(ui.item.value);
 
-      borders = new L.geoJson.ajax("https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/moscow.geo.json", {
+      firstFeature = new L.geoJson.ajax("https://s3.eu-central-1.amazonaws.com/osmborders/Russia/admin_level_5.geo.json", {
         onEachFeature: function(feature, layer) {
           layer.bindPopup(feature.properties.name);
           map.fitBounds(layer.getBounds());
@@ -118,7 +83,7 @@ $(function() {
         }
       });
 
-      borders.once('data:loaded', function() {
+      firstFeature.once('data:loaded', function() {
             this.eachLayer(function(layer){
               firstLatLngs = layer.getLatLngs();
               firstCenter = layer.getBounds().getCenter();
@@ -149,7 +114,7 @@ $(function() {
 
     $('#second-city').removeAttr("disabled");
 
-    map.addLayer(borders);
+    map.addLayer(firstFeature);
 
     }
     });
@@ -183,8 +148,8 @@ $(function() {
 
       select: function(event, ui) {
         query2.length = 0;
-        if (districts) {
-          map.removeLayer(districts);
+        if (secondFeature) {
+          map.removeLayer(secondFeature);
         }
         if (shift) {
           map.removeLayer(shift);
@@ -199,7 +164,7 @@ $(function() {
           fillOpacity: 0.7
         };
 
-        districts = new L.geoJson.ajax("https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/moscow_districts.geo.json", {
+        secondFeature = new L.geoJson.ajax("https://raw.githubusercontent.com/ggolikov/cities-comparison/master/src/moscow_districts.geo.json", {
           onEachFeature: function(feature, layer) {
             layer.bindPopup(feature.properties.NAME);
             layer.on({
@@ -224,16 +189,16 @@ $(function() {
         }
 
         function resetHighlight(e) {
-          districts.resetStyle(e.target);
+          secondFeature.resetStyle(e.target);
         }
 
-        map.addLayer(districts);
+        map.addLayer(secondFeature);
 
   /*
   **    reproject
   */
 
-      districts.once('data:loaded', function() {
+      secondFeature.once('data:loaded', function() {
             this.eachLayer(function(layer){
               secondCenter = layer.getBounds().getCenter();
               secondCenter = [secondCenter.lat, secondCenter.lng];
@@ -322,7 +287,7 @@ $(function() {
               }
             };
 
-            map.removeLayer(borders);
+            map.removeLayer(firstFeature);
             map.fitBounds(shift.getBounds());
 
       });
