@@ -24,6 +24,7 @@ var query1 = [];
 var query2 = [];
 var randomColor = '#'+Math.floor(Math.random()*16777215).toString(16);
 
+
 var style = {
   weight: 2,
   color: "grey",
