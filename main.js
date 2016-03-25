@@ -72,7 +72,6 @@ var query1 = [];
 var query2 = [];
 var randomColor = '#'+Math.floor(Math.random()*16777215).toString(16);
 
-
 var style = {
   weight: 2,
   color: "grey",
@@ -188,7 +187,7 @@ $(function() {
     $('#second-city').autocomplete({
       source: function(request, response) {
         $.ajax({
-          url: "https://raw.githubusercontent.com/ggolikov/cities-comparison/master/example/admin_level_9.geo.json",
+          url: "https://raw.githubusercontent.com/ggolikov/cities-comparison/master/example/admin_level_5.geo.json",
           dataType: "json",
           data: request,
           success: function(data) {
@@ -223,7 +222,7 @@ $(function() {
           fillOpacity: 0.7
         };
 
-        secondFeature = new L.geoJson.ajax("https://raw.githubusercontent.com/ggolikov/cities-comparison/master/example/admin_level_9.geo.json", {
+        secondFeature = new L.geoJson.ajax("https://raw.githubusercontent.com/ggolikov/cities-comparison/master/example/admin_level_5.geo.json", {
           onEachFeature: function(feature, layer) {
             layer.bindPopup(feature.properties.name);
             layer.on({
