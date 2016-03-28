@@ -279,7 +279,7 @@ $(function() {
 
             // drawing shifted polygon
 
-            shift = L.polygon(firstLatLngsClone, {
+            shift = new L.multiPolygon(firstLatLngsClone, {
               weight: 2,
               color: "grey",
               fillColor: randomColor,
@@ -288,7 +288,12 @@ $(function() {
               transform: true,
               draggable: true
             }).addTo(map);
-              console.log(shift);
+
+            map.removeLayer(firstFeature);
+            console.log(shift.getBounds());
+            console.log(shift.getLatLngs());
+            map.fitBounds(shift.getBounds());
+
             // enable transform
             shift.transform.enable();
             shift.options.transform = false;
@@ -302,9 +307,6 @@ $(function() {
                 firstLatLngsClone[j].push(firstLatLngs[j][l]);
               }
             };
-
-            map.removeLayer(firstFeature);
-            map.fitBounds(shift.getBounds());
 
             function adjust() {
               shift.options.transform = true;
