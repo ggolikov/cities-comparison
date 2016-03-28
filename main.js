@@ -3,61 +3,12 @@ require('leaflet-path-transform');
 /**
 ** Set map & baselayers
 */
-var attr_osm = 'Map data &copy; <a href="http://openstreetmap.org/">OpenStreetMap</a> contributors',
-attr_overpass = 'POI via <a href="http://www.overpass-api.de/">Overpass API</a>';
 
 var map = L.map(document.getElementsByClassName('map')[0]).setView([55.58415969422116, 37.385264449999966],9);
 var mapBox = L.tileLayer.provider('MapBox', {id: 'businesstat.liek2okp', accessToken: 'pk.eyJ1IjoiYnVzaW5lc3N0YXQiLCJhIjoiQ1hVdVdxZyJ9.sXqLsSh-1vhh11_BSL-g4Q'}).addTo(map);
 L.control.scale().addTo(map);
 
 /**
-<<<<<<< HEAD
-<<<<<<< HEAD
-** Set OverPassAPI
-*/
-
-var opl = new L.OverPassLayer({
-  // query: 'node(BBOX)["boundary"="administrative"]["admin_level"="8"]["name" = "городское поселение Сергиев Посад"];out;',
-  query: 'node["amenity"="school"](BBOX);out;',
-});
-
-map.addLayer(opl);
-=======
-** get OverPass JSON (xhr)
-*/
-
-// var coords;
-// var xhr = new XMLHttpRequest();
-// xhr.open('GET', 'http://overpass-api.de/api/interpreter?data=[out%3Ajson][timeout%3A25]%3B%28relation[%22boundary%22%3D%22administrative%22][%22name%22%3D%22%D0%9C%D0%BE%D1%81%D0%BA%D0%B2%D0%B0%22]%3B%29%3Bout%20body%3B%3E%3Bout%20skel%20qt%3B%0A', true);
-// xhr.send();
-//
-// xhr.onreadystatechange = function() {
-//     if (this.readyState != 4) return;
-//     // console.log(xhr);
-//     if (xhr.responseText) {
-//      var osm_data = xhr.responseText;
-//   if (osm_data) {
-//
-//     var JSON = osmtogeojson(osm_data);
-//
-//     var array = [];
-//     var data = L.geoJson(JSON, {
-//       onEachFeature: function(feature) {
-//         array.push(feature.geometry.coordinates);
-//       }
-//     }).addTo(map);
-//     array.pop();
-//     coords = array[0][0];
-//     coords.forEach(function(x){x.reverse()});
-//     console.log(array[0]);
-//   }
-// }
-// }
->>>>>>> refs/remotes/origin/master
-
-/**
-=======
->>>>>>> refs/remotes/origin/master
 ** Set GeoJSON
 ** &
 ** search-box
@@ -72,6 +23,7 @@ var query1 = [];
 var query2 = [];
 var randomColor = '#'+Math.floor(Math.random()*16777215).toString(16);
 var polygonOptions;
+
 
 var style = {
   weight: 2,
@@ -258,31 +210,6 @@ $(function() {
   **    reproject
   */
 
-<<<<<<< HEAD
-      districts.once('data:loaded', function() {
-<<<<<<< HEAD
-        console.log(borders.getLayers().getLatLngs());
-        console.log(districts.getLayers().getLatLngs());
-                    var poly = new L.Polygon(borders.getLayers()[0].getLatLngs());
-            var newPoly = new L.Polygon(districts.getLayers()[0].getLatLngs());
-            var wgs84 = 'GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4326"]]';
-            proj4.defs('EPSG:3410', "+proj=cea +lon_0=0 +lat_ts=30 +x_0=0 +y_0=0 +a=6371228 +b=6371228 +units=m +no_defs");
-            proj4.defs('SR-ORG:6864', "+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +a=6378137 +b=6378137 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs");
-            var customProjection = proj4('SR-ORG:6864');
-=======
-            // var poly = new L.Polygon(coords);
-            var poly = new L.Polygon(borders.getLayers()[0].getLatLngs());
-            var newPoly = new L.Polygon(districts.getLayers()[0].getLatLngs());
-            // var wgs84 = 'GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4326"]]';
-            // proj4.defs('EPSG:3410', "+proj=cea +lon_0=0 +lat_ts=30 +x_0=0 +y_0=0 +a=6371228 +b=6371228 +units=m +no_defs");
-            // proj4.defs('SR-ORG:6864', "+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +a=6378137 +b=6378137 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs");
-            // var customProjection = proj4('SR-ORG:6864');
->>>>>>> refs/remotes/origin/master
-
-            /*
-            ** LatLng shift
-            */
-=======
       secondFeature.once('data:loaded', function() {
 
             $('#adjust').removeAttr("disabled");
@@ -291,21 +218,12 @@ $(function() {
               secondCenter = layer.getBounds().getCenter();
               secondCenter = [secondCenter.lat, secondCenter.lng];
             });
->>>>>>> refs/remotes/origin/master
 
-<<<<<<< HEAD
-            var zero = [0,37.6137272],
-                polar = [84.886737,32.405546],
-                east = [55.753707000000006, 80],
-                west = [55.753707000000006, -4.25];
-                spb = [59.938879,30.315212],
-=======
             var zero  = [0,37.6137272],
                 polar = [84.886737,32.405546],
                 east  = [55.753707000000006, 80],
                 west  = [55.753707000000006, -4.25];
                 spb   = [59.938879,30.315212],
->>>>>>> refs/remotes/origin/master
                 sochi = [43.585525, 39.723062];
 
             var y = secondCenter[0];
@@ -323,19 +241,12 @@ $(function() {
             // var y = west[0];
             // var x = west[1];
             // var y = Math.random()*90;
-<<<<<<< HEAD
-            // var x = 37.6137272;
-=======
             // var x = Math.random()*180;
 
-<<<<<<< HEAD
->>>>>>> refs/remotes/origin/master
-=======
             /*
             ** function LatLng shift
             */
 
->>>>>>> refs/remotes/origin/master
             var scaleFactor2 = 1/Math.cos((Math.PI*y)/180);
 
             function shiftCoords(arr) {
@@ -383,14 +294,6 @@ $(function() {
             shift.options.transform = false;
             shift.options.draggable = false;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-            var shift = L.polygon(llArray, {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2}).addTo(map);
-=======
-            shift = L.polygon(llArray, {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2}).addTo(map);
->>>>>>> refs/remotes/origin/master
-            map.removeLayer(borders);
-=======
             // reset coordinates array clone to default to avoid shift
 
             for (var j = 0; j < firstLatLngs.length; j++) {
@@ -401,7 +304,6 @@ $(function() {
             };
 
             map.removeLayer(firstFeature);
->>>>>>> refs/remotes/origin/master
             map.fitBounds(shift.getBounds());
 
             function adjust() {
