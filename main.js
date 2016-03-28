@@ -1,5 +1,5 @@
 require('leaflet-ajax');
-
+require('leaflet-path-transform');
 /**
 ** Set map & baselayers
 */
@@ -71,6 +71,7 @@ var firstLatLngsClone, firstCenterClone;
 var query1 = [];
 var query2 = [];
 var randomColor = '#'+Math.floor(Math.random()*16777215).toString(16);
+var polygonOptions;
 
 var style = {
   weight: 2,
@@ -120,6 +121,7 @@ $(function() {
           map.fitBounds(layer.getBounds());
         },
         style: style,
+
         // style: function(feature) {
         //   switch (feature.properties.name) {
         //     case 'Зеленоградский административный округ': return {weight: 2, color: "grey", fillColor: randomColor, opacity: 1, fillOpacity: 0.2};
@@ -282,6 +284,9 @@ $(function() {
             */
 =======
       secondFeature.once('data:loaded', function() {
+
+            $('#adjust').removeAttr("disabled");
+
             this.eachLayer(function(layer){
               secondCenter = layer.getBounds().getCenter();
               secondCenter = [secondCenter.lat, secondCenter.lng];
@@ -334,18 +339,6 @@ $(function() {
             var scaleFactor2 = 1/Math.cos((Math.PI*y)/180);
 
             function shiftCoords(arr) {
-
-              // for (var i = 0; i < arr.length; i++)  {
-              //   var scaleFactor1 = 1/Math.cos((Math.PI*arr[i][0])/180);
-              //   arr[i][0] = arr[i][0] - firstCenterClone[0] + y;
-              //   arr[i][1] = (arr[i][1] - firstCenterClone[1])*(scaleFactor2/scaleFactor1) + x;
-              //
-              //   // arr[i][0] = arr[i][0]/2;
-              //   // arr[i][1] = arr[i][1]/2;
-              //   // arr[i] = [0,2];
-              //
-              // }
-
                 var offsets = [];
                 for (var i = 0; i < arr.length; i++)  {
                   var point = [];
@@ -375,7 +368,20 @@ $(function() {
 
             // drawing shifted polygon
 
-            shift = new L.multiPolygon(firstLatLngsClone, style).addTo(map);
+            shift = L.polygon(firstLatLngsClone, {
+              weight: 2,
+              color: "grey",
+              fillColor: randomColor,
+              opacity: 1,
+              fillOpacity: 0.2,
+              transform: true,
+              draggable: true
+            }).addTo(map);
+              console.log(shift);
+            // enable transform
+            shift.transform.enable();
+            shift.options.transform = false;
+            shift.options.draggable = false;
 
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -398,6 +404,13 @@ $(function() {
 >>>>>>> refs/remotes/origin/master
             map.fitBounds(shift.getBounds());
 
+            function adjust() {
+              shift.options.transform = true;
+              shift.options.draggable = true;
+              console.log(shift);
+            }
+            var adjustButton = document.getElementById('adjust');
+            adjustButton.onclick = adjust;
       });
 
     }  //select
