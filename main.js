@@ -65,9 +65,12 @@ $(function() {
       if (shift) {
         map.removeLayer(shift);
       }
+      if (secondFeature) {
+        map.removeLayer(secondFeature);
+      }
       query1.push(ui.item.value);
 
-      firstFeature = new L.geoJson.ajax("https://raw.githubusercontent.com/ggolikov/cities-comparison/master/example/admin_level_5.geo.json", {
+      firstFeature = new L.geoJson.ajax("https://raw.githubusercontent.com/ggolikov/cities-comparison/master/example/admin_level_4.geo.json", {
         onEachFeature: function(feature, layer) {
           layer.bindPopup(feature.properties.name);
           map.fitBounds(layer.getBounds());
@@ -141,7 +144,7 @@ $(function() {
     $('#second-city').autocomplete({
       source: function(request, response) {
         $.ajax({
-          url: "https://raw.githubusercontent.com/ggolikov/cities-comparison/master/example/admin_level_5.geo.json",
+          url: "https://raw.githubusercontent.com/ggolikov/cities-comparison/master/example/admin_level_4.geo.json",
           dataType: "json",
           data: request,
           success: function(data) {
@@ -160,6 +163,9 @@ $(function() {
 
       select: function(event, ui) {
         query2.length = 0;
+        if (firstFeature) {
+          map.removeLayer(firstFeature);
+        }
         if (secondFeature) {
           map.removeLayer(secondFeature);
         }
@@ -289,16 +295,6 @@ $(function() {
               draggable: true
             }).addTo(map);
 
-            map.removeLayer(firstFeature);
-            console.log(shift.getBounds());
-            console.log(shift.getLatLngs());
-            map.fitBounds(shift.getBounds());
-
-            // enable transform
-            shift.transform.enable();
-            shift.options.transform = false;
-            shift.options.draggable = false;
-
             // reset coordinates array clone to default to avoid shift
 
             for (var j = 0; j < firstLatLngs.length; j++) {
@@ -307,6 +303,16 @@ $(function() {
                 firstLatLngsClone[j].push(firstLatLngs[j][l]);
               }
             };
+            map.removeLayer(firstFeature);
+            // console.log(shift.getBounds());
+            // console.log(shift.getLatLngs());
+            map.fitBounds(shift.getBounds());
+
+            // enable transform
+            shift.transform.enable();
+            shift.options.transform = false;
+            shift.options.draggable = false;
+
 
             function adjust() {
               shift.options.transform = true;
