@@ -65,6 +65,9 @@ $(function() {
       if (shift) {
         map.removeLayer(shift);
       }
+      if (secondFeature) {
+        map.removeLayer(secondFeature);
+      }
       query1.push(ui.item.value);
 
       firstFeature = new L.geoJson.ajax("https://raw.githubusercontent.com/ggolikov/cities-comparison/master/example/admin_level_5.geo.json", {
@@ -160,6 +163,9 @@ $(function() {
 
       select: function(event, ui) {
         query2.length = 0;
+        if (firstFeature) {
+          map.removeLayer(firstFeature);
+        }
         if (secondFeature) {
           map.removeLayer(secondFeature);
         }
@@ -279,7 +285,7 @@ $(function() {
 
             // drawing shifted polygon
 
-            shift = L.polygon(firstLatLngsClone, {
+            shift = new L.multiPolygon(firstLatLngsClone, {
               weight: 2,
               color: "grey",
               fillColor: randomColor,
@@ -288,11 +294,6 @@ $(function() {
               transform: true,
               draggable: true
             }).addTo(map);
-              console.log(shift);
-            // enable transform
-            shift.transform.enable();
-            shift.options.transform = false;
-            shift.options.draggable = false;
 
             // reset coordinates array clone to default to avoid shift
 
@@ -302,9 +303,16 @@ $(function() {
                 firstLatLngsClone[j].push(firstLatLngs[j][l]);
               }
             };
-
             map.removeLayer(firstFeature);
+            // console.log(shift.getBounds());
+            // console.log(shift.getLatLngs());
             map.fitBounds(shift.getBounds());
+
+            // enable transform
+            shift.transform.enable();
+            shift.options.transform = false;
+            shift.options.draggable = false;
+
 
             function adjust() {
               shift.options.transform = true;
