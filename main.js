@@ -70,7 +70,7 @@ $(function() {
       }
       query1.push(ui.item.value);
 
-      firstFeature = new L.geoJson.ajax("https://raw.githubusercontent.com/ggolikov/cities-comparison/master/example/admin_level_4.geo.json", {
+      firstFeature = new L.geoJson.ajax("https://raw.githubusercontent.com/ggolikov/cities-comparison/master/example/admin_level_5.geo.json", {
         onEachFeature: function(feature, layer) {
           layer.bindPopup(feature.properties.name);
           map.fitBounds(layer.getBounds());
@@ -144,7 +144,7 @@ $(function() {
     $('#second-city').autocomplete({
       source: function(request, response) {
         $.ajax({
-          url: "https://raw.githubusercontent.com/ggolikov/cities-comparison/master/example/admin_level_4.geo.json",
+          url: "https://raw.githubusercontent.com/ggolikov/cities-comparison/master/example/admin_level_5.geo.json",
           dataType: "json",
           data: request,
           success: function(data) {

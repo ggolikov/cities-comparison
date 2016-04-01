@@ -16,6 +16,7 @@
     "leaflet-path-transform": "0.0.2",
     "leaflet-providers": "^1.1.7",
     "leaflet-search": "^1.8.4",
+    "mongodb": "^2.1.14",
     "proj4": "^2.3.14",
     "proj4leaflet": "^0.7.2"
   },
