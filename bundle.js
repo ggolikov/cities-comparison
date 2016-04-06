@@ -175,14 +175,6 @@ $(function() {
         }
         query2.push(ui.item.value);
 
-        var distStyle = {
-          weight: 1,
-          color: "grey",
-          fillColor: randomColor,
-          opacity: 1,
-          fillOpacity: 0.7
-        };
-
         secondFeature = new L.geoJson.ajax("https://raw.githubusercontent.com/ggolikov/cities-comparison/master/example/admin_level_5.geo.json", {
           onEachFeature: function(feature, layer) {
             layer.bindPopup(feature.properties.name);
@@ -191,7 +183,7 @@ $(function() {
               mouseout: resetHighlight,
             });
           },
-          style: distStyle,
+          style: style,
           filter: function(feature) {
             return feature.properties.name == query2[query2.length-1];
           }
@@ -305,15 +297,22 @@ $(function() {
               }
             };
             map.removeLayer(firstFeature);
-            // console.log(shift.getBounds());
-            // console.log(shift.getLatLngs());
-            map.fitBounds(shift.getBounds());
+
+            // fit zoom
+            var bbox1 = shift.getBounds();
+            var bbox2 = secondFeature.getBounds();
+
+            if ((bbox1._northEast.lat - bbox1._southWest.lat)*(bbox1._northEast.lng - bbox1._southWest.lng) >=
+              (bbox2._northEast.lat - bbox2._southWest.lat)*(bbox2._northEast.lng - bbox2._southWest.lng)) {
+                map.fitBounds(shift.getBounds());
+            } else {
+              map.fitBounds(secondFeature.getBounds());
+            }
 
             // enable transform
             shift.transform.enable();
             shift.options.transform = false;
             shift.options.draggable = false;
-
 
             function adjust() {
               shift.options.transform = true;
