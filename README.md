@@ -1,3 +1,3 @@
 # cities-comparison
 Project to compare world cities, creating map overlays (using right geodesic transformations).
-Now the example data contains different Russian districts (tape words in Russian).
+Now the example data contains different Russian districts (tape words in Russian, like  "Центральный административный округ" or "Петроградский район").
